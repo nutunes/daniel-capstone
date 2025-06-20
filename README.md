@@ -1,4 +1,17 @@
-Daniel's 2025 Meta University Internship Capstone Project
+# FineTune
+
+**Deployed site**: <add a link to your deployment here, if you create one>
+
+## Overview
+<Add a quick description of your app here>
 
 
-Project Plan: https://docs.google.com/document/d/1R52Is7pZIIVFWQmU-TmSlFU1ymzfPRXw6BrgccJCbAI/edit?tab=t.0
+## Links
+**Project Plan**: [doc]<add https://docs.google.com/document/d/1R52Is7pZIIVFWQmU-TmSlFU1ymzfPRXw6BrgccJCbAI>
+**Wireframes**: [here]<add a link to wire frames>
+<img src="OR_INSERT_INLINE_YOUR_WIREFRAME_IMAGE_URL" width=600>
+
+<add any other links here as you work on your project>
+
+## Demo Video
+[TBD](<insert link in Week 9!>)
