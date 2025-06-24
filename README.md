@@ -7,7 +7,7 @@
 
 
 ## Links
-**Project Plan**: [doc]<add https://docs.google.com/document/d/1R52Is7pZIIVFWQmU-TmSlFU1ymzfPRXw6BrgccJCbAI>
+**Project Plan**: https://docs.google.com/document/d/1R52Is7pZIIVFWQmU-TmSlFU1ymzfPRXw6BrgccJCbAI
 **Wireframes**: In the project plan
 <img src="OR_INSERT_INLINE_YOUR_WIREFRAME_IMAGE_URL" width=600>
 
