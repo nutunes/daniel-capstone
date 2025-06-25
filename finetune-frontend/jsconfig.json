@@ -1,0 +1,11 @@
+// for shadcn install
+
+
+{
+    "compilerOptions": {
+        "baseUrl":".",
+        "paths": {
+            "@/*": ["src/*"]
+        }
+    }
+}
