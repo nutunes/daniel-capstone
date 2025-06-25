@@ -1,4 +1,4 @@
-
+//This file will ensure that the user is logged in before rendering any further pages
 
 const ProtectedRoute = () => {
     return (
