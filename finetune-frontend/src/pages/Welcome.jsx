@@ -13,17 +13,19 @@ const WelcomePage = () => {
 
     return (
         <div className='flex flex-col'>
-            <div className='header'>
-                <h1 className='text-4xl'> FineTune</h1>
+            <div className='m-10'>
+                <h1 className='text-8xl font-semibold '> FineTune</h1>
                 {/*Icon placeholder*/}
             </div>
             <div>
-                <form className='login-form' onSubmit={handleLogin}>
+                <form className='flex flex-col gap-5' onSubmit={handleLogin}>
                     <Input placeholder="username" required/>
-                    <Input placeholder="password" required/>
-                    <div className='login-btns'>
-                        <Button type='button' variant='outline' size='lg' onClick={handleRegister} className="text-orange">Register</Button>
-                        <Button type='submit' variant='outline' size='lg' className='text-indigo'>Login</Button>
+                    <Input placeholder="password" type='password' required/>
+                    <div className='flex gap-5'>
+                        <Button type='button' variant='outline' size='lg' onClick={handleRegister} className='text-orange flex-1 hover:text-darkpurple hover:bg-orange focus:scale-105 active:scale-105'>
+                            Register</Button>
+                        <Button type='submit' variant='outline' size='lg' className='text-indigo flex-1 hover:text-darkpurple hover:bg-indigo focus:scale-105 active:scale-105'>
+                            Login</Button>
                     </div>
                 </form>
             </div>
