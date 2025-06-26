@@ -3,6 +3,7 @@ import { Routes, Route, Navigate} from 'react-router-dom'
 import Welcome from './pages/Welcome'
 import ProtectedRoute from './components/ProtectedRoute'
 import { ThemeToggle } from './components/ThemeToggle'
+import InteractiveBackground from './components/InteractiveBackground'
 
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
       <Routes>
         <Route path='/' element={<Navigate to='/welcome' replace/> }/>
         <Route path='/welcome' element={<Welcome/>} />
+        <Route path='/testing' element={<InteractiveBackground />} />
         <Route path='*' element={<ProtectedRoute />} /> {/*Everything except the welcome page is contingent on the user being logged in*/}
       </Routes>
     </div>
