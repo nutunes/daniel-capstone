@@ -7,7 +7,9 @@ const bgColor = '#1f0322'
 const svgs = { Music, Music2, Music3, Music4 }
 const svgKeys = Object.keys(svgs);
 const maxNumFails = 70;
-const showDist = 200;
+const brightDist = 100;
+const medDist = 150;
+const dimDist = 200;
 
 const InteractiveBackground = () => {
     const divRef = useRef(null);
@@ -20,7 +22,6 @@ const InteractiveBackground = () => {
     const checkClosest = (x, y, newNotes, distTolerance) => {
         for (const note of newNotes){
             if (getDistance(x, y, note.x, note.y) < distTolerance){
-                console.log('too close')
                 return false;
             }
         }
@@ -31,7 +32,6 @@ const InteractiveBackground = () => {
         const cont = divRef.current;
         const {height, width} = cont.getBoundingClientRect();
         const distTolerance = (width/30)
-        console.log(distTolerance);
         const newNotes = [];
         let shouldBreak = false;
         let i = 0;
@@ -45,7 +45,6 @@ const InteractiveBackground = () => {
                 y=Math.floor(Math.random()*height);
                 numFails++;
                 if (numFails >= maxNumFails){
-                    console.log('breaking')
                     shouldBreak=true;
                     break;
                 }
@@ -64,8 +63,7 @@ const InteractiveBackground = () => {
     },[])
 
     const handleMouseMove = (e) => {
-        setCoords({x: e.clientX, y: e.clientY});
-        console.log(coords);
+        setCoords({x: e.clientX, y: e.clientY})
     }
 
     return (
@@ -75,14 +73,19 @@ const InteractiveBackground = () => {
             {notes.map((note)=>{
                 const NoteComponent = svgs[note.svgKey];
                 //Check if mouse is close enough
-                const show = getDistance(note.x, note.y, coords.x, coords.y) <= showDist;
+                const dist = getDistance(note.x, note.y, coords.x, coords.y);
+                const bright = dist <= brightDist;
+                const med = dist <= medDist;
+                const dim = dist <= dimDist;
                 return(
                     <div 
                     key={note.id}
                     className='absolute size-[10px] md:size-[25px] lg:size-[40px] xl:size-[50px]' 
                     style={{top: `${note.y}px`, left: `${note.x}px`}}>
                         {/* <NoteComponent stroke={note.color} width={'50px'} height={'50px'}/> */}
-                        <NoteComponent stroke={show ? note.color : bgColor} className='w-full h-full'/>
+                        <NoteComponent stroke={dim ? note.color : bgColor} className={`w-full h-full 
+                            ${bright? 'animate-brightpulse': med? 'animate-medpulse': dim? 'animate-dimpulse': ''}
+                        `}/>
                     </div>
                 )
             })}
