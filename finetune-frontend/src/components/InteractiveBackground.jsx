@@ -3,19 +3,15 @@ import { useRef, useEffect, useState } from 'react'
 import { Music, Music2, Music3, Music4 } from "lucide-react"
 
 const colors = ['#a682ff', '#f0a868', '#084c61', '#a63446', '#f5f5f5', '#aaf0ad'];
-const bgColor = '#1f0322'
 const svgs = { Music, Music2, Music3, Music4 }
 const svgKeys = Object.keys(svgs);
 const maxNumFails = 70;
-const brightDist = 100;
-const medDist = 150;
-const dimDist = 200;
+const showDist = 160;
+const flashlightRadius = 200;
 
-const InteractiveBackground = () => {
+const InteractiveBackground = ({coords}) => {
     const divRef = useRef(null);
     const [notes, setNotes] = useState([]);
-    const [coords, setCoords] = useState({x:-1000, y:-1000})
-
 
     const getDistance = (x1, y1, x2, y2)=> Math.sqrt((x1-x2)**2 + (y1-y2)**2);
 
@@ -62,29 +58,27 @@ const InteractiveBackground = () => {
         setNotes(newNotes);
     },[])
 
-    const handleMouseMove = (e) => {
-        setCoords({x: e.clientX, y: e.clientY})
-    }
 
     return (
-        <div className='absolute inset-0 bg-transparent pointer-events-none'>
-            <div ref={divRef} className='absolute top-0 left-0 right-5 bottom-5 md:bottom-10 md:right-10 lg:bottom-20 lg:right-20 xl:bottom-30 xl:right-30 pointer-events-auto bg-transparent'
-            onMouseMove={handleMouseMove}>
+        <div className='absolute inset-0 bg-transparent pointer-events-none cursor-none'>
+            <div className='absolute inset-0 pointer-events-none' style={{
+                background: `radial-gradient(circle ${flashlightRadius}px at ${coords.x + 25}px ${coords.y + 25}px, rgba(245, 245, 245, 0.8) 0%, rgba(245,245,245,0) 100%)`,
+                transition: 'background 0.1s ease-out'
+            }}>
+
+            </div>
+            <div ref={divRef} className='absolute top-0 left-0 right-5 bottom-5 md:bottom-10 md:right-10 lg:bottom-20 lg:right-20 xl:bottom-30 xl:right-30 pointer-events-auto bg-transparent'>
             {notes.map((note)=>{
                 const NoteComponent = svgs[note.svgKey];
                 //Check if mouse is close enough
-                const dist = getDistance(note.x, note.y, coords.x, coords.y);
-                const bright = dist <= brightDist;
-                const med = dist <= medDist;
-                const dim = dist <= dimDist;
+                const show = getDistance(note.x, note.y, coords.x, coords.y)<=showDist;
                 return(
                     <div 
                     key={note.id}
                     className='absolute size-[10px] md:size-[25px] lg:size-[40px] xl:size-[50px]' 
                     style={{top: `${note.y}px`, left: `${note.x}px`}}>
-                        {/* <NoteComponent stroke={note.color} width={'50px'} height={'50px'}/> */}
-                        <NoteComponent stroke={dim ? note.color : bgColor} className={`w-full h-full 
-                            ${bright? 'animate-brightpulse': med? 'animate-medpulse': dim? 'animate-dimpulse': ''}
+                        <NoteComponent stroke={show ? note.color : 'transparent'} className={`w-full h-full 
+                            ${show? 'animate-brightpulse': ''}
                         `}/>
                     </div>
                 )
