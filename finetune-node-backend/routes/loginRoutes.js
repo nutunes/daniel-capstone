@@ -59,7 +59,7 @@ router.post('/', async(req, res)=>{
             return res.status(400).json({error: 'invalid username or password'});
         }
         req.session.userId = user.id;
-        res.json({message: "login successful"});
+        res.json({id: user.id})
     } catch (error){
         console.error(error);
         res.status(500).json({error: 'login failed'})
@@ -82,7 +82,7 @@ router.get('/session-status', async (req, res)=>{
         if (!user){
             return res.status(400).json({error: 'user no longer exists'})
         }
-        res.json({id: req.session.userId, username: user.username})
+        res.json({id: req.session.userId})
     } catch (error){
         console.error(error);
         res.status(500).json({error: 'session retrieval failed'})

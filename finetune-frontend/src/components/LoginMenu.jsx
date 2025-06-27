@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from '@/components/ui/input';
+import { useAuth } from './AuthProvider';
 import RegisterModal from './RegisterModal';
 
 const LoginMenu = () => {
@@ -8,34 +10,38 @@ const LoginMenu = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [badCreds, setBadCreds] = useState(false)
+    const navigate = useNavigate();
+    const {setUser} = useAuth();
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await fetch(`http://localhost:3000/login`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    username,
-                    password
+        const handleLogin = async (e) => {
+            e.preventDefault();
+            try {
+                const response = await fetch(`http://localhost:3000/login`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        username,
+                        password
+                    }),
+                    credentials: 'include',
                 })
-            })
-            if (response.status === 400){
-                //Fail login
-                console.log('bad username or pw');
-                setBadCreds(true);
-            } else if (!response.ok){
-                throw new Error('login fail');
+                if (response.status === 400){
+                    //Fail login
+                    setBadCreds(true);
+                } else if (!response.ok){
+                    throw new Error('login fail');
+                }
+                else{
+                    const responseJSON = await response.json();
+                    setUser(responseJSON.id);
+                    navigate('/oogly');
+                }
+            } catch (error){
+                console.error(error);
             }
-            else{
-                console.log('logged in');
-            }
-        } catch (error){
-            console.error(error);
         }
-    }
 
     return (
         <div className='z-1 bg-background rounded-4xl p-5'>
