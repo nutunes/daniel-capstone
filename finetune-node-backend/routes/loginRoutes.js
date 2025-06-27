@@ -4,6 +4,8 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 const bcrypt = require('bcrypt')
 
+
+
 //Check if a username is available
 router.get('/usernameAvailable', async (req, res)=>{
     const { username } = req.query;
@@ -56,10 +58,34 @@ router.post('/', async(req, res)=>{
         if (!isValidPassword){
             return res.status(400).json({error: 'invalid username or password'});
         }
+        req.session.userId = user.id;
         res.json({message: "login successful"});
     } catch (error){
         console.error(error);
         res.status(500).json({error: 'login failed'})
+    }
+})
+
+//Check if user is logged in
+router.get('/session-status', async (req, res)=>{
+    try {
+        if (!req.session){
+            return res.status(401).json({message: 'no session exists'})
+        }
+        if (!req.session.userId){
+            return res.status(401).json({message: 'not logged in'});
+        }
+        const user = await prisma.User.findUnique({
+            where: {id: req.session.userId},
+            select: {username: true}
+        })
+        if (!user){
+            return res.status(400).json({error: 'user no longer exists'})
+        }
+        res.json({id: req.session.userId, username: user.username})
+    } catch (error){
+        console.error(error);
+        res.status(500).json({error: 'session retrieval failed'})
     }
 })
 

@@ -7,9 +7,34 @@ const LoginMenu = () => {
     const [showRegModal, setShowRegModal] = useState(false);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [badCreds, setBadCreds] = useState(false)
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
+        try {
+            const response = await fetch(`http://localhost:3000/login`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    username,
+                    password
+                })
+            })
+            if (response.status === 400){
+                //Fail login
+                console.log('bad username or pw');
+                setBadCreds(true);
+            } else if (!response.ok){
+                throw new Error('login fail');
+            }
+            else{
+                console.log('logged in');
+            }
+        } catch (error){
+            console.error(error);
+        }
     }
 
     return (
@@ -22,6 +47,7 @@ const LoginMenu = () => {
                 <form className='flex flex-col gap-5' onSubmit={handleLogin}>
                     <Input placeholder="Username" value={username} onChange={(e)=>setUsername(e.target.value)} required/>
                     <Input placeholder="Password" type='password' value={password} onChange={(e)=>setPassword(e.target.value)} required/>
+                    {badCreds && <Button type='button' variant='outline' size='sm' className='text-red !border-red pointer-events-none'>Invalid Username or Password</Button>}
                     <div className='flex gap-5'>
                         <Button type='button' variant='outline' size='lg' 
                         className='text-orange !border-orange flex-1 hover:text-darkpurple hover:!bg-orange focus:scale-105 active:scale-105' onClick={setShowRegModal}>
