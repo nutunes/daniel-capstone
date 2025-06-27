@@ -1,9 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme {
+  --font-fredoka: 'Fredoka', sans-serif;
   --color-indigo: #a682ff;
   --color-orange: #f0a868;
   --color-darkgreen: #084c61;

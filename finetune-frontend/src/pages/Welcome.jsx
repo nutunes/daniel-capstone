@@ -32,10 +32,9 @@ const WelcomePage = () => {
 
     return (
         <div className='flex flex-col' onMouseMove={handleMouseMove}>
-            <InteractiveBackground coords={coords}/>
-            <div className='z-1 bg-background rounded-md p-5'>
+            <div className='z-1 bg-background rounded-4xl p-5'>
                 <div className='m-10'>
-                    <h1 className='text-8xl font-semibold '> FineTune</h1>
+                    <h1 className='text-8xl font-fredoka'> FineTune</h1>
                     {/*Icon placeholder*/}
                 </div>
                 <div ref={menuRef}>
@@ -62,6 +61,7 @@ const WelcomePage = () => {
                     </DialogContent>
                 </Dialog>
             </div>
+            <InteractiveBackground coords={coords}/>
         </div>
     )
 }
