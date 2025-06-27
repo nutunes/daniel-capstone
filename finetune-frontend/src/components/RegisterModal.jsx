@@ -16,12 +16,14 @@ const RegisterModal = ({showModal, setShowModal}) => {
     const [username, setUsername] = useState('');
     const [usernameAvailable, setUsernameAvailable] = useState(undefined);
     const [password, setPassword] = useState('');
+    const [validPassword, setValidPassword] = useState(undefined);
 
     const handleRegister = async(e) => {
         e.preventDefault();
-        const available = await checkUsernameAvailability();
-        if (!available) return;
-        console.log('available');
+        const availableUsername = await checkUsernameAvailability();
+        if (!availableUsername) return;
+        const passwordValid = checkValidPassword();
+        
     }
 
     const checkUsernameAvailability = async() => {
@@ -36,6 +38,21 @@ const RegisterModal = ({showModal, setShowModal}) => {
         } catch (error){
             console.error(error);
         }
+    }
+
+    //can add more password requirements
+    const checkValidPassword = () => {
+        //Set state is to trigger a rerender in the ui, return value is for the submit function
+        if (!password){
+            setValidPassword(undefined);
+            return false;
+        }
+        if (password.length >= 8){
+            setValidPassword(true)
+            return true;
+        }
+        setValidPassword(false)
+        return false;
     }
     
     return (
@@ -60,14 +77,21 @@ const RegisterModal = ({showModal, setShowModal}) => {
                                 onClick={checkUsernameAvailability}
                                 >Check Availability</Button>}
                             </div>
-                        {usernameAvailable === true && <Button type='button' variant='outline' size='sm'
-                            className='text-palegreen !border-palegreen pointer-events-none p-2'>Username Available</Button>}
-                        {usernameAvailable === false && <Button type='button' variant='outline' size='sm'
-                            className='text-red !border-red pointer-events-none p-2'>Username Unavailable</Button>}
-                        <Input placeholder="Password" type='password' value={password} onChange={(e)=>setPassword(e.target.value)} required/>
-                        <Button type='submit' variant='outline' size='lg' className='text-indigo !border-indigo flex-1 hover:text-darkpurple hover:!bg-indigo focus:scale-105 active:scale-105 p-2'>
-                            Create Account
-                        </Button>
+                            {usernameAvailable === true && <Button type='button' variant='outline' size='sm'
+                                className='text-palegreen !border-palegreen pointer-events-none p-2'>Username Available</Button>}
+                            {usernameAvailable === false && <Button type='button' variant='outline' size='sm'
+                                className='text-red !border-red pointer-events-none p-2'>Username Unavailable</Button>}
+                            <Input placeholder="Password" type='password' value={password} onChange={(e)=>{
+                                setPassword(e.target.value)
+                                setValidPassword(undefined);
+                            }} required/>
+                            {validPassword === true && <Button type='button' variant='outline' size='sm'
+                                className='text-palegreen !border-palegreen pointer-events-none p-2'>Valid Password</Button>}
+                            {validPassword === false && <Button type='button' variant='outline' size='sm'
+                                className='text-red !border-red pointer-events-none p-2'>Invalid password, must be 8 characters</Button>}
+                            <Button type='submit' variant='outline' size='lg' className='text-indigo !border-indigo flex-1 hover:text-darkpurple hover:!bg-indigo focus:scale-105 active:scale-105 p-2'>
+                                Create Account
+                            </Button>
                         </form>
                     </div>
                 </DialogContent>
