@@ -26,7 +26,7 @@ router.post('/register', async(req, res)=>{
         }
 
         //Ensure username is not taken
-        const existingUser = await prisma.User.findUnique({where: {username}});
+        const existingUser = await prisma.user.findUnique({where: {username}});
         if (existingUser){
             return res.status(400).json({error: 'username taken'})
         }
@@ -51,7 +51,7 @@ router.post('/', async(req, res)=>{
         if (!username || !password){
             return res.status(400).json({error: "must include both a username and password"});
         }
-        const user = await prisma.User.findUnique({where: {username}});
+        const user = await prisma.user.findUnique({where: {username}});
         if (!user){
             return res.status(400).json({error: 'invalid username or password'});
         }
@@ -76,7 +76,7 @@ router.get('/session-status', async (req, res)=>{
         if (!req.session.userId){
             return res.status(401).json({message: 'not logged in'});
         }
-        const user = await prisma.User.findUnique({
+        const user = await prisma.user.findUnique({
             where: {id: req.session.userId},
             select: {username: true}
         })

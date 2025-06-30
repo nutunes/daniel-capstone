@@ -1,14 +1,35 @@
-import { useEffect } from "react";
+import { useEffect } from "react"
+import { useAuth } from "@/components/AuthProvider"
 
 const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID
 const redirectUri = 'http://127.0.0.1:5173/loaduserspotify'
 
 
 const LoadUserSpotify = () => {
+    const { user } = useAuth();
+    
+    const patchRefreshToken = async(refreshToken) => {
+        try {
+            const response = await fetch(`http://127.0.0.1:3000/spotify/${user}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    refresh_token: refreshToken
+                })
+            })
+            if (!response || !response.ok){
+                console.error(error);
+            }
+        } catch(error){
+            console.error(error);
+        }
+    }
 
     const requestAccessToken = async(code) => {
         const codeVerifier = localStorage.getItem('code_verifier');
-        const url = "https://accounts/spotify.com/api/token";
+        const url = "https://accounts.spotify.com/api/token";
         const payload = {
             method: 'POST',
             headers: {
@@ -22,28 +43,29 @@ const LoadUserSpotify = () => {
                 code_verifier: codeVerifier,
             }),
         }
-
         try {
             const body = await fetch(url, payload);
-            const response = await body.json();
-            if (!response || !response.ok){
+            if (!body || !body.ok){
                 throw new Error('failed to get spotify access token');
             }
+            const response = await body.json();
+            patchRefreshToken(response.refresh_token);
             //TODO: USE response.access_token TO LOAD SPOTIFY 
-            //PUT response.refresh_token IN THE DB
         } catch(error){
             console.error(error);
         }
     }
 
-
+    //Note: Because this is running in strict mode, this useEffect gets ran twice which triggers the requestAccessToken twice. 
+    //But, the requestAccessToken will fail on the second because the code has already been used. This is only a bug in development
+    //and will not be present on the final product, so it can be ignored.
     useEffect(()=>{
         const urlParams = new URLSearchParams(window.location.search);
         let code = urlParams.get('code');
         if (urlParams.get('error')){
-            console.error('failed to retrieve users spotify information');
+            console.log(`fail: ${urlParams.get('error')}`);
         }
-
+        requestAccessToken(code);
     }, [])
 
 
