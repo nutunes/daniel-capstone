@@ -12,14 +12,15 @@ const allowedOrigins = [
 ]
 
 app.use(cors({
-    origin: (origin, callback)=>{
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin)){
-            callback(null, true);
-        } else{
-            callback(new Error('Not allowed by CORS'))
-        }
-    },
+    // origin: (origin, callback)=>{
+    //     if (!origin) return callback(null, true);
+    //     if (allowedOrigins.includes(origin)){
+    //         callback(null, true);
+    //     } else{
+    //         callback(new Error('Not allowed by CORS'))
+    //     }
+    // },
+    origin: 'http://127.0.0.1:5173',
     credentials: true
 }));
 app.use(express.json());
@@ -42,6 +43,6 @@ app.get('/', (req, res)=>{
 })
 
 
-app.listen(PORT, ()=>{
-    console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(PORT, '127.0.0.1', ()=>{
+    console.log(`Server is running on http://127.0.0.1:${PORT}`);
 })

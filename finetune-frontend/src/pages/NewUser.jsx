@@ -1,9 +1,9 @@
-
+import SpotifyAuth from "@/components/SpotifyAuth";
 
 const NewUser = () => {
     return (
-        <div>
-            <h1 className='font-fredoka'>Welcome to Finetune!</h1>
+        <div className='z-1 bg-background rounded-4xl p-5'>
+            <SpotifyAuth/>
         </div>
     )
 }

@@ -3,12 +3,13 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 import Welcome from "./pages/Welcome";
 import Home from "./pages/Home";
 import NewUser from "./pages/NewUser";
+import LoadUserSpotify from "./pages/LoadUserSpotify";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { useAuth } from "./components/AuthProvider";
 
 
-const validPaths = ['/newuser']
+const validPaths = ['/newuser', '/loaduserspotify']
 
 function App() {
   const { user, setUser } = useAuth();
@@ -16,15 +17,17 @@ function App() {
 
   const ProtectedHome = ProtectedRoute(Home);
   const ProtectedNewUser = ProtectedRoute(NewUser);
+  const ProtectedLoadSpotify = ProtectedRoute(LoadUserSpotify);
 
 
   useEffect(() => {
-    fetch('http://localhost:3000/login/session-status', {credentials: 'include'})
+    fetch('http://127.0.0.1:3000/login/session-status', {credentials: 'include'})
       .then((response)=>response.json())
       .then((data)=>{
         if (data.id){
           setUser(data.id);
           if (!validPaths.includes(window.location.pathname)){ //go to home if you are not on any designated valid paths
+            console.log(window.location.pathname);
             navigate('/home');
           }
         } else{
@@ -39,9 +42,11 @@ function App() {
         <ThemeToggle />
       </div>
       <Routes>
+        <Route path='/' element={<h1>Welcome to Finetune</h1>} />
         <Route path="/welcome" element={<Welcome />} />
         <Route path="/home" element={<ProtectedHome />}/>
         <Route path="/newuser" element={<ProtectedNewUser />} />
+        <Route path="/loaduserspotify" element={<ProtectedLoadSpotify />} />
         {/*Everything except the welcome page is contingent on the user being logged in*/}
       </Routes>
     </div>

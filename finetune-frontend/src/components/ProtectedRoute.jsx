@@ -10,7 +10,7 @@ const ProtectedRoute = (WrappedComponent) => {
 
         useEffect(()=>{
             if (!user){
-                fetch("http://localhost:3000/login/session-status", { credentials: "include"})
+                fetch("http://127.0.0.1:3000/login/session-status", { credentials: "include"})
                     .then((response)=>response.json())
                     .then((data)=>{
                         if (data.id){
