@@ -10,6 +10,8 @@ function App() {
   const { user, setUser } = useAuth();
   const navigate = useNavigate();
 
+  const ProtectedHome = ProtectedRoute(Home)
+
   useEffect(() => {
     fetch('http://localhost:3000/login/session-status', {credentials: 'include'})
       .then((response)=>response.json())
@@ -30,8 +32,7 @@ function App() {
       </div>
       <Routes>
         <Route path="/welcome" element={<Welcome />} />
-        <Route path="/home" element={<Home />}/>
-        <Route path="*" element={<ProtectedRoute />} />
+        <Route path="/home" element={<ProtectedHome />}/>
         {/*Everything except the welcome page is contingent on the user being logged in*/}
       </Routes>
     </div>

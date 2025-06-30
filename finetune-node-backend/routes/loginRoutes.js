@@ -35,7 +35,8 @@ router.post('/register', async(req, res)=>{
         const newUser = await prisma.User.create({
             data: {username, hashedPassword}
         })
-        res.status(201).json({message: 'User successfully created'});
+        req.session.userId = newUser.id;
+        res.status(201).json({id: newUser.id});
     } catch (error){
         console.error(error);
         res.status(500).json({error: 'signup failed'})
