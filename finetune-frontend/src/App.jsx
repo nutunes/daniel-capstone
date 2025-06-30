@@ -2,15 +2,21 @@ import { useEffect } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import Welcome from "./pages/Welcome";
 import Home from "./pages/Home";
+import NewUser from "./pages/NewUser";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { useAuth } from "./components/AuthProvider";
+
+
+const validPaths = ['/newuser']
 
 function App() {
   const { user, setUser } = useAuth();
   const navigate = useNavigate();
 
-  const ProtectedHome = ProtectedRoute(Home)
+  const ProtectedHome = ProtectedRoute(Home);
+  const ProtectedNewUser = ProtectedRoute(NewUser);
+
 
   useEffect(() => {
     fetch('http://localhost:3000/login/session-status', {credentials: 'include'})
@@ -18,7 +24,9 @@ function App() {
       .then((data)=>{
         if (data.id){
           setUser(data.id);
-          navigate('/home'); //go to home screen if logged in
+          if (!validPaths.includes(window.location.pathname)){ //go to home if you are not on any designated valid paths
+            navigate('/home');
+          }
         } else{
           navigate('/welcome')
         }
@@ -33,6 +41,7 @@ function App() {
       <Routes>
         <Route path="/welcome" element={<Welcome />} />
         <Route path="/home" element={<ProtectedHome />}/>
+        <Route path="/newuser" element={<ProtectedNewUser />} />
         {/*Everything except the welcome page is contingent on the user being logged in*/}
       </Routes>
     </div>
