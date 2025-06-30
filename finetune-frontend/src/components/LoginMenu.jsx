@@ -36,7 +36,7 @@ const LoginMenu = () => {
                 else{
                     const responseJSON = await response.json();
                     setUser(responseJSON.id);
-                    navigate('/oogly');
+                    navigate('/home');
                 }
             } catch (error){
                 console.error(error);

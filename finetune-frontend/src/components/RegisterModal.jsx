@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import {
@@ -11,19 +12,44 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { useAuth } from "./AuthProvider"
 
 const RegisterModal = ({showModal, setShowModal}) => {
     const [username, setUsername] = useState('');
     const [usernameAvailable, setUsernameAvailable] = useState(undefined);
     const [password, setPassword] = useState('');
     const [validPassword, setValidPassword] = useState(undefined);
+    const { user, setUser } = useAuth();
+    const navigate = useNavigate();
 
     const handleRegister = async(e) => {
         e.preventDefault();
         const availableUsername = await checkUsernameAvailability();
         if (!availableUsername) return;
         const passwordValid = checkValidPassword();
-        
+        if (!passwordValid) return;
+        console.log('register')
+        try {
+            const response = await fetch(`http://localhost:3000/login/register`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    username,
+                    password
+                }),
+                credentials: 'include',
+            })
+            if (!response.ok){
+                throw new Error('failed to register');
+            }
+            const responseJSON = await response.json();
+            setUser(responseJSON.id);
+            navigate('/newuser');
+        } catch(error){
+            console.error(error);
+        }
     }
 
     const checkUsernameAvailability = async() => {
@@ -57,7 +83,11 @@ const RegisterModal = ({showModal, setShowModal}) => {
     
     return (
         <div>
-            <Dialog open={showModal} onOpenChange={setShowModal}>
+            <Dialog open={showModal} onOpenChange={()=>{
+                setShowModal((prev)=>!prev)
+                setUsername('');
+                setPassword('');
+            }}>
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>
