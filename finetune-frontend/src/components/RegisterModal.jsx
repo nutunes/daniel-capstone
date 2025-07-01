@@ -4,13 +4,9 @@ import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import {
   Dialog,
-  DialogClose,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import { useAuth } from "./AuthProvider"
 
@@ -90,10 +86,9 @@ const RegisterModal = ({showModal, setShowModal}) => {
             }}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>
+                        <DialogTitle className='text-center'>
                             <p  className='text-5xl font-fredoka'>Register User</p>
                         </DialogTitle>
-                        <DialogDescription></DialogDescription>
                     </DialogHeader>
                     <div>
                         <form className='flex flex-col gap-5' onSubmit={handleRegister}>
