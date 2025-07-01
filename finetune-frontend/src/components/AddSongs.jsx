@@ -12,6 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import SongElement from "./SongElement";
 
 import { useAuth } from "./AuthProvider";
 
@@ -59,8 +60,7 @@ const AddSongs = () => {
                 throw new Error('failed to search for songs');
             }
             const responseJSON = await response.json();
-            setSearchResults(responseJSON.tracks.items)
-            console.log(responseJSON);
+            setSearchResults(responseJSON.tracks.items);
         } catch(error){
             console.error(error);
         }
@@ -68,7 +68,7 @@ const AddSongs = () => {
 
     const handleSearch = async() => {
         fetchSongs();
-        console.log('search');
+        console.log(searchResults);
     }
 
     useEffect(()=>{
@@ -83,7 +83,7 @@ const AddSongs = () => {
                     className='text-indigo !border-indigo flex-1 hover:text-darkpurple hover:!bg-indigo focus:scale-105 active:scale-105 p-3'
                     >Add Songs Manually</Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className='w-900px'>
                 <DialogHeader>
                     <DialogTitle className='text-center text-5xl font-fredoka'>
                         Manually Add Songs
@@ -93,10 +93,25 @@ const AddSongs = () => {
                     </DialogDescription>
                 </DialogHeader>
                 <div className='flex flex-row gap-2'>
-                    <Input placeholder='Search for a song' value={searchString} onChange={(e)=>setSearchString(e.target.value)} />
+                    <Input placeholder='Search for a song' className='font-fredoka' value={searchString} onChange={(e)=>{
+                        setSearchString(e.target.value);
+                        setSearchResults([])
+                        }} />
                     {searchString && <Button variant='outline' size='sm'
                         className='text-orange !border-orange hover:text-darkpurple hover:!bg-orange focus:scale-105 active:scale-105'
                         onClick={handleSearch}>Search</Button>}
+                </div>
+                <div className='overflow-y-auto max-h-[400px] mt-4 flex flex-col gap-4' style={{scrollbarWidth: 'thin'}}>
+                    {searchResults.map((track)=>{
+                        return (
+                            <SongElement 
+                                name={track.name}
+                                artists={track.artists}
+                                image={track.album.images[0].url}
+                                key={track.id}
+                            />
+                        )
+                    })}
                 </div>
             </DialogContent>
         </Dialog>
