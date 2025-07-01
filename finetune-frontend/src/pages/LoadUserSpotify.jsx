@@ -1,4 +1,5 @@
 import { useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/components/AuthProvider"
 
 const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID
@@ -7,6 +8,7 @@ const redirectUri = 'http://127.0.0.1:5173/loaduserspotify'
 
 const LoadUserSpotify = () => {
     const { user } = useAuth();
+    const navigate = useNavigate();
     
     const patchRefreshToken = async(refreshToken) => {
         try {
@@ -20,7 +22,7 @@ const LoadUserSpotify = () => {
                 })
             })
             if (!response || !response.ok){
-                console.error(error);
+                throw new Error('failed to update refresh token')
             }
         } catch(error){
             console.error(error);
@@ -45,12 +47,14 @@ const LoadUserSpotify = () => {
         }
         try {
             const body = await fetch(url, payload);
-            if (!body || !body.ok){
-                throw new Error('failed to get spotify access token');
-            }
+            //The reason this is commented out is documented below
+            // if (!body || !body.ok){
+            //     throw new Error('failed to get spotify access token');
+            // }
             const response = await body.json();
             patchRefreshToken(response.refresh_token);
             //TODO: USE response.access_token TO LOAD SPOTIFY 
+            navigate('/home');
         } catch(error){
             console.error(error);
         }
