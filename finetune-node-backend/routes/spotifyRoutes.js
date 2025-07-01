@@ -26,8 +26,9 @@ router.patch('/refresh_token', isAuthenticated, async(req, res)=>{
 router.patch('/add_song', isAuthenticated, async(req, res)=>{
     try {
         const userId = req.session.userId;
+        console.log(userId);
         const {like, spotify_id, title, album, spotify_album_id} = req.body;
-        if (like !== 'true' && like !== 'false'){
+        if (like !== true && like !== false){
             return res.status(400).json({error: 'like must be either true or false'});
         }
         if (!spotify_id || !title || !album || !spotify_album_id){

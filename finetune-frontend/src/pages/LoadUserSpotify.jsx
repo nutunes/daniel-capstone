@@ -22,9 +22,10 @@ const LoadUserSpotify = () => {
                 }),
                 credentials: 'include',
             })
-            if (!response || !response.ok){
-                throw new Error('failed to update refresh token')
-            }
+            console.log(response);
+            // if (!response || !response.ok){
+            //     throw new Error('failed to update refresh token')
+            // }
         } catch(error){
             console.error(error);
         }

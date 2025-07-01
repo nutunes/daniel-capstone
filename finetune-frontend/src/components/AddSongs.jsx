@@ -108,9 +108,7 @@ const AddSongs = () => {
                     {searchResults.map((track)=>{
                         return (
                             <SongElement 
-                                name={track.name}
-                                artists={track.artists}
-                                image={track.album.images[0].url}
+                                track={track}
                                 key={track.id}
                             />
                         )
