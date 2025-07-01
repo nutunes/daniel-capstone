@@ -1,7 +1,7 @@
 import { Button } from "./ui/button";
 import { ThumbsDown, ThumbsUp } from "lucide-react";
 
-const SongElement = ({track, addSong}) => {
+const SongElement = ({track, clear}) => {
     const name = track.name;
     const artists = track.artists;
     const image = track.album.images[0].url;
@@ -26,6 +26,7 @@ const SongElement = ({track, addSong}) => {
             // if (!response || !response.ok){
             //     throw new Error('failed to add song');
             // }
+            clear();
         } catch(error){
             console.error(error);
         }
