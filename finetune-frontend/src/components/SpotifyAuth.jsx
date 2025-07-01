@@ -1,5 +1,4 @@
 import { Button } from "./ui/button";
-import { useNavigate } from "react-router-dom";
 
 const generateRandomString = (length) =>{
     const possible = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
@@ -27,7 +26,6 @@ const scope = 'user-top-read'
 const authUrl = new URL("https://accounts.spotify.com/authorize")
 
 const SpotifyAuth = () => {
-    const navigate = useNavigate();
 
     const requestAuth = async () => {
         //Send request to Spotify, will redirect to spotify's page

@@ -19,14 +19,18 @@ model User {
   hashedPassword      String
   spotifyRefreshToken String?
   displayName         String?
-  songs               Song[]
+  likedSongs          Song[]   @relation("LikedSongs")
+  dislikedSongs       Song[]   @relation("DislikedSongs")
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 }
 
 model Song {
-  id         String @id @default(uuid())
-  spotify_id String
-  title      String
-  users      User[]
+  id               String @id @default(uuid())
+  spotify_id       String @unique
+  title            String
+  album            String
+  spotify_album_id String
+  likedBy          User[] @relation("LikedSongs")
+  dislikedBy       User[] @relation("DislikedSongs")
 }

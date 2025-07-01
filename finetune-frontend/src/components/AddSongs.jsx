@@ -75,6 +75,9 @@ const AddSongs = () => {
         fetchToken();
     },[])
 
+    const putSong = async(songId, albumId, like) => {
+
+    }
 
     return (
         <Dialog>
