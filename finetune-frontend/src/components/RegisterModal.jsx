@@ -30,7 +30,7 @@ const RegisterModal = ({showModal, setShowModal}) => {
         if (!passwordValid) return;
         console.log('register')
         try {
-            const response = await fetch(`http://localhost:3000/login/register`, {
+            const response = await fetch(`http://127.0.0.1:3000/login/register`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -54,7 +54,7 @@ const RegisterModal = ({showModal, setShowModal}) => {
 
     const checkUsernameAvailability = async() => {
         try {
-            const response = await fetch(`http://localhost:3000/login/usernameAvailable?username=${username}`);
+            const response = await fetch(`http://127.0.0.1:3000/login/usernameAvailable?username=${username}`);
             if (!response.ok){
                 throw new Error('failed to check username');
             }

@@ -4,10 +4,12 @@ const cors = require('cors')
 const app = express()
 const PORT = process.env.PORT || 3000
 const loginRoutes = require('./routes/loginRoutes')
+const spotifyRoutes = require('./routes/spotifyRoutes')
 const session = require('express-session')
 
+
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: 'http://127.0.0.1:5173',
     credentials: true
 }));
 app.use(express.json());
@@ -24,12 +26,14 @@ app.use(session({
 
 
 app.use('/login', loginRoutes)
+app.use('/spotify', spotifyRoutes)
+
 
 app.get('/', (req, res)=>{
     res.send("welcome to finetune");
 })
 
 
-app.listen(PORT, ()=>{
-    console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(PORT, '127.0.0.1', ()=>{
+    console.log(`Server is running on http://127.0.0.1:${PORT}`);
 })
