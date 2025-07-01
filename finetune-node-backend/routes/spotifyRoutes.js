@@ -26,7 +26,6 @@ router.patch('/refresh_token', isAuthenticated, async(req, res)=>{
 router.patch('/add_song', isAuthenticated, async(req, res)=>{
     try {
         const userId = req.session.userId;
-        console.log(userId);
         const {like, spotify_id, title, album, spotify_album_id} = req.body;
         if (like !== true && like !== false){
             return res.status(400).json({error: 'like must be either true or false'});
@@ -47,10 +46,10 @@ router.patch('/add_song', isAuthenticated, async(req, res)=>{
         const updatedUser = await prisma.user.update({
             where: {id: userId},
             data: {
-                likedSongs: like==='like' 
+                likedSongs: like 
                     ? {connect: {id: song.id}}
                     : {disconnect: {id: song.id}},
-                dislikedSongs: like==='false'
+                dislikedSongs: !like
                     ? {connect: {id: song.id}}
                     : {disconnect: {id: song.id}}
             }
