@@ -5,7 +5,9 @@ const Home = () => {
     const {user} = useAuth();
 
     return (
-        <h1>{`user: ${user}`}</h1>
+        <div>
+            <p className='font-fredoka'>Home</p>
+        </div>
     )
 }
 

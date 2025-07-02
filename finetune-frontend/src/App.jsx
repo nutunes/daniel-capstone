@@ -59,21 +59,24 @@ function App() {
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center">
-      <div className="flex flex-row justify-between gap-2 fixed top-4 right-4">
+      <div className="flex flex-row justify-end gap-2 w-full bg-background p-7">
         <ThemeToggle />
         {user && <Button variant='outline' size='sm'
           className='text-foreground !border-foreground hover:text-background hover:!bg-foreground'
           onClick={handleLogout}
           >Logout</Button>}
       </div>
-      <Routes>
-        <Route path='/' element={<Navigate to={user ? '/home' : '/welcome'} replace />} />
-        <Route path="/welcome" element={<Welcome />} />
-        <Route path="/home" element={<ProtectedHome />}/>
-        <Route path="/newuser" element={<ProtectedNewUser />} />
-        <Route path="/loaduserspotify" element={<ProtectedLoadSpotify />} />
-        {/*Everything except the welcome page is contingent on the user being logged in*/}
-      </Routes>
+      <div className='flex items-center flex-1'>
+        <Routes>
+          <Route path='/' element={<Navigate to={user ? '/home' : '/welcome'} replace />} />
+          <Route path="/welcome" element={<Welcome />} />
+          <Route path="/home" element={<ProtectedHome />}/>
+          <Route path="/newuser" element={<ProtectedNewUser />} />
+          <Route path="/loaduserspotify" element={<ProtectedLoadSpotify />} />
+          {/*Everything except the welcome page is contingent on the user being logged in*/}
+        </Routes>
+      </div>
+
       <Toaster position='top-center' />
     </div>
   );

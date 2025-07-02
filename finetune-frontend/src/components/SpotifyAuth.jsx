@@ -49,7 +49,7 @@ const SpotifyAuth = () => {
 
     return (
         <Button variant = 'outline' size='lg' 
-            className='text-palegreen !border-palegreen flex-1 hover:text-darkpurple hover:!bg-palegreen focus:scale-105 active:scale-105 p-3'
+            className='text-palegreen !border-palegreen hover:text-darkpurple hover:!bg-palegreen focus:scale-105 active:scale-105 p-15 text-4xl border-5'
             onClick={requestAuth}>Connect to Spotify</Button>
     )
 }
