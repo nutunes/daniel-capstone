@@ -1,12 +1,15 @@
-import { useEffect } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
+import { ThemeToggle } from "./components/ThemeToggle";
+import { useAuth } from "./components/AuthProvider";
+
+import { Button } from "./components/ui/button";
+
 import Welcome from "./pages/Welcome";
 import Home from "./pages/Home";
 import NewUser from "./pages/NewUser";
 import LoadUserSpotify from "./pages/LoadUserSpotify";
 import ProtectedRoute from "./components/ProtectedRoute";
-import { ThemeToggle } from "./components/ThemeToggle";
-import { useAuth } from "./components/AuthProvider";
 
 
 const validPaths = ['/newuser', '/loaduserspotify']
@@ -18,6 +21,22 @@ function App() {
   const ProtectedHome = ProtectedRoute(Home);
   const ProtectedNewUser = ProtectedRoute(NewUser);
   const ProtectedLoadSpotify = ProtectedRoute(LoadUserSpotify);
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch(`http://127.0.0.1:3000/login/logout`, {
+        method: "POST",
+        credentials: 'include',
+      })
+      if (!response.ok){
+        throw new Error('failed to logout');
+      }
+      setUser(null);
+      navigate('/');
+    } catch(error) {
+      console.error(error);
+    }
+  }
 
 
   useEffect(() => {
@@ -36,13 +55,18 @@ function App() {
       })
   },[]);
 
+
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center">
-      <div className="fixed top-4 right-4">
+      <div className="flex flex-row justify-between gap-2 fixed top-4 right-4">
         <ThemeToggle />
+        {user && <Button variant='outline' size='sm'
+          className='text-foreground !border-foreground hover:text-background hover:!bg-foreground'
+          onClick={handleLogout}
+          >Logout</Button>}
       </div>
       <Routes>
-        <Route path='/' element={<h1>Welcome to Finetune</h1>} />
+        <Route path='/' element={<Navigate to={user ? '/home' : '/welcome'} replace />} />
         <Route path="/welcome" element={<Welcome />} />
         <Route path="/home" element={<ProtectedHome />}/>
         <Route path="/newuser" element={<ProtectedNewUser />} />

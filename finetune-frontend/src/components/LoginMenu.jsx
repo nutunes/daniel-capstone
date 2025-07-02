@@ -13,35 +13,35 @@ const LoginMenu = () => {
     const navigate = useNavigate();
     const {setUser} = useAuth();
 
-        const handleLogin = async (e) => {
-            e.preventDefault();
-            try {
-                const response = await fetch(`http://127.0.0.1:3000/login`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        username,
-                        password
-                    }),
-                    credentials: 'include',
-                })
-                if (response.status === 400){
-                    //Fail login
-                    setBadCreds(true);
-                } else if (!response.ok){
-                    throw new Error('login fail');
-                }
-                else{
-                    const responseJSON = await response.json();
-                    setUser(responseJSON.id);
-                    navigate('/home');
-                }
-            } catch (error){
-                console.error(error);
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await fetch(`http://127.0.0.1:3000/login`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    username,
+                    password
+                }),
+                credentials: 'include',
+            })
+            if (response.status === 400){
+                //Fail login
+                setBadCreds(true);
+            } else if (!response.ok){
+                throw new Error('login fail');
             }
+            else{
+                const responseJSON = await response.json();
+                setUser(responseJSON.id);
+                navigate('/home');
+            }
+        } catch (error){
+            console.error(error);
         }
+    }
 
     return (
         <div className='z-1 bg-background rounded-4xl p-5'>
