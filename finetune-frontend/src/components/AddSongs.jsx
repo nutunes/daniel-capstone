@@ -68,7 +68,6 @@ const AddSongs = () => {
 
     const handleSearch = async() => {
         fetchSongs();
-        console.log(searchResults);
     }
 
     useEffect(()=>{

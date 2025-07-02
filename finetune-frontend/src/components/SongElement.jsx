@@ -1,4 +1,5 @@
 import { Button } from "./ui/button";
+import { toast } from "sonner";
 import { ThumbsDown, ThumbsUp } from "lucide-react";
 
 const SongElement = ({track, clear}) => {
@@ -26,6 +27,7 @@ const SongElement = ({track, clear}) => {
             //     throw new Error('failed to add song');
             // }
             clear();
+            toast(`Successfully added ${name} to your ${like ? 'liked' : 'disliked'} songs`);
         } catch(error){
             console.error(error);
         }

@@ -4,6 +4,7 @@ import { ThemeToggle } from "./components/ThemeToggle";
 import { useAuth } from "./components/AuthProvider";
 
 import { Button } from "./components/ui/button";
+import { Toaster } from "./components/ui/sonner";
 
 import Welcome from "./pages/Welcome";
 import Home from "./pages/Home";
@@ -73,6 +74,7 @@ function App() {
         <Route path="/loaduserspotify" element={<ProtectedLoadSpotify />} />
         {/*Everything except the welcome page is contingent on the user being logged in*/}
       </Routes>
+      <Toaster position='top-center' />
     </div>
   );
 }
