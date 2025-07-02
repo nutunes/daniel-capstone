@@ -22,7 +22,6 @@ const SongElement = ({track, clear}) => {
                 }),
                 credentials: 'include',
             });
-            console.log(response);
             // if (!response || !response.ok){
             //     throw new Error('failed to add song');
             // }

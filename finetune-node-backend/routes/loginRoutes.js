@@ -3,6 +3,7 @@ const router = express.Router()
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 const bcrypt = require('bcrypt')
+const {isAuthenticated} = require('../middleware/auth')
 
 
 
@@ -90,5 +91,16 @@ router.get('/session-status', async (req, res)=>{
     }
 })
 
+
+//Logout of an account
+router.post('/logout', isAuthenticated, async(req, res)=>{
+    req.session.destroy((err)=>{
+        if (err) {
+            return res.status(500).json({error: 'logout failed'})
+        }
+        res.clearCookie("connect.sid");
+        res.json({message: "logged out successfully"})
+    })
+})
 
 module.exports = router;
