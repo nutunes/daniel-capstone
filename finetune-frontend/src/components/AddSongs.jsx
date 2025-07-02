@@ -75,6 +75,10 @@ const AddSongs = () => {
         fetchToken();
     },[])
 
+    const clearSearch = () => {
+        setSearchString('');
+        setSearchResults([]);
+    }
 
     return (
         <Dialog>
@@ -101,18 +105,17 @@ const AddSongs = () => {
                         className='text-orange !border-orange hover:text-darkpurple hover:!bg-orange focus:scale-105 active:scale-105'
                         onClick={handleSearch}>Search</Button>}
                 </div>
-                <div className='overflow-y-auto max-h-[400px] mt-4 flex flex-col gap-4' style={{scrollbarWidth: 'thin'}}>
+                {<div className='overflow-y-auto max-h-[400px] mt-4 flex flex-col gap-4' style={{scrollbarWidth: 'thin'}}>
                     {searchResults.map((track)=>{
                         return (
                             <SongElement 
-                                name={track.name}
-                                artists={track.artists}
-                                image={track.album.images[0].url}
+                                track={track}
                                 key={track.id}
+                                clear={clearSearch}
                             />
                         )
                     })}
-                </div>
+                </div>}
             </DialogContent>
         </Dialog>
     )

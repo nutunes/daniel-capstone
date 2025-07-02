@@ -12,18 +12,20 @@ const LoadUserSpotify = () => {
     
     const patchRefreshToken = async(refreshToken) => {
         try {
-            const response = await fetch(`http://127.0.0.1:3000/spotify/${user}`, {
+            const response = await fetch(`http://127.0.0.1:3000/spotify/refresh_token`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
                     refresh_token: refreshToken
-                })
+                }),
+                credentials: 'include',
             })
-            if (!response || !response.ok){
-                throw new Error('failed to update refresh token')
-            }
+            console.log(response);
+            // if (!response || !response.ok){
+            //     throw new Error('failed to update refresh token')
+            // }
         } catch(error){
             console.error(error);
         }
