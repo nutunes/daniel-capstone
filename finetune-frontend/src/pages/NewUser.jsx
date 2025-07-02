@@ -3,7 +3,7 @@ import AddSongs from "@/components/AddSongs";
 
 const NewUser = () => {
     return (
-        <div className='z-1 bg-background rounded-4xl p-5 flex flex-col gap-5'>
+        <div className='z-1 bg-background rounded-4xl p-5 flex flex-col gap-5 w-fit self-center'>
             <SpotifyAuth />
             <AddSongs />
         </div>

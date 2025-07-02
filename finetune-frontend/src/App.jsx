@@ -10,10 +10,11 @@ import Welcome from "./pages/Welcome";
 import Home from "./pages/Home";
 import NewUser from "./pages/NewUser";
 import LoadUserSpotify from "./pages/LoadUserSpotify";
+import Profile from "./pages/Profile";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 
-const validPaths = ['/newuser', '/loaduserspotify']
+const validPaths = ['/newuser', '/loaduserspotify', '/profile']
 
 function App() {
   const { user, setUser } = useAuth();
@@ -22,6 +23,7 @@ function App() {
   const ProtectedHome = ProtectedRoute(Home);
   const ProtectedNewUser = ProtectedRoute(NewUser);
   const ProtectedLoadSpotify = ProtectedRoute(LoadUserSpotify);
+  const ProtectedProfile = ProtectedRoute(Profile);
 
   const handleLogout = async () => {
     try {
@@ -62,17 +64,18 @@ function App() {
       <div className="flex flex-row justify-end gap-2 w-full bg-background p-7">
         <ThemeToggle />
         {user && <Button variant='outline' size='sm'
-          className='text-foreground !border-foreground hover:text-background hover:!bg-foreground'
+          className='text-foreground !border-foreground hover:text-background hover:!bg-foreground border-2'
           onClick={handleLogout}
           >Logout</Button>}
       </div>
-      <div className='flex items-center flex-1'>
+      <div className='flex flex-col justify-center flex-1 w-full'>
         <Routes>
           <Route path='/' element={<Navigate to={user ? '/home' : '/welcome'} replace />} />
           <Route path="/welcome" element={<Welcome />} />
           <Route path="/home" element={<ProtectedHome />}/>
           <Route path="/newuser" element={<ProtectedNewUser />} />
           <Route path="/loaduserspotify" element={<ProtectedLoadSpotify />} />
+          <Route path="/profile" element={<ProtectedProfile />} />
           {/*Everything except the welcome page is contingent on the user being logged in*/}
         </Routes>
       </div>

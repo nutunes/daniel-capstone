@@ -78,7 +78,7 @@ const LoadUserSpotify = () => {
 
 
     return (
-        <div>
+        <div className='w-fit self-center'>
             <h1 className='font-fredoka' >Loading Your Spotify details...</h1>
         </div>
     )
