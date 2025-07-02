@@ -1,6 +1,7 @@
 import { useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/components/AuthProvider"
+import { uploadUsersTop500Tracks } from "@/util/spotifyUtils"
 
 const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID
 const redirectUri = 'http://127.0.0.1:5173/loaduserspotify'
@@ -56,6 +57,7 @@ const LoadUserSpotify = () => {
             const response = await body.json();
             patchRefreshToken(response.refresh_token);
             //TODO: USE response.access_token TO LOAD SPOTIFY 
+            uploadUsersTop500Tracks(response.access_token);
             navigate('/home');
         } catch(error){
             console.error(error);
