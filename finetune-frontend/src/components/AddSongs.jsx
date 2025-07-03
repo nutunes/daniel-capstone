@@ -83,7 +83,8 @@ const AddSongs = () => {
         <Dialog>
             <DialogTrigger asChild>
                 <Button variant='outline' size='lg'
-                    className='text-indigo !border-indigo flex-1 hover:text-darkpurple hover:!bg-indigo focus:scale-105 active:scale-105 p-3'
+                    className='text-indigo !border-indigo hover:text-background hover:!bg-indigo 
+                    focus:scale-105 active:scale-105 p-15 text-4xl border-5'
                     >Add Songs Manually</Button>
             </DialogTrigger>
             <DialogContent className='w-900px'>

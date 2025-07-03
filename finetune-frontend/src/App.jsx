@@ -10,10 +10,12 @@ import Welcome from "./pages/Welcome";
 import Home from "./pages/Home";
 import NewUser from "./pages/NewUser";
 import LoadUserSpotify from "./pages/LoadUserSpotify";
+import Profile from "./pages/Profile";
+import Friends from "./pages/Friends";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 
-const validPaths = ['/newuser', '/loaduserspotify']
+const validPaths = ['/newuser', '/loaduserspotify', '/profile', '/friends']
 
 function App() {
   const { user, setUser } = useAuth();
@@ -22,6 +24,8 @@ function App() {
   const ProtectedHome = ProtectedRoute(Home);
   const ProtectedNewUser = ProtectedRoute(NewUser);
   const ProtectedLoadSpotify = ProtectedRoute(LoadUserSpotify);
+  const ProtectedProfile = ProtectedRoute(Profile);
+  const ProtectedFriends = ProtectedRoute(Friends);
 
   const handleLogout = async () => {
     try {
@@ -59,21 +63,26 @@ function App() {
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center">
-      <div className="flex flex-row justify-between gap-2 fixed top-4 right-4">
+      <div className="flex flex-row justify-end gap-2 w-full bg-background p-7">
         <ThemeToggle />
         {user && <Button variant='outline' size='sm'
-          className='text-foreground !border-foreground hover:text-background hover:!bg-foreground'
+          className='text-foreground !border-foreground hover:text-background hover:!bg-foreground border-2'
           onClick={handleLogout}
           >Logout</Button>}
       </div>
-      <Routes>
-        <Route path='/' element={<Navigate to={user ? '/home' : '/welcome'} replace />} />
-        <Route path="/welcome" element={<Welcome />} />
-        <Route path="/home" element={<ProtectedHome />}/>
-        <Route path="/newuser" element={<ProtectedNewUser />} />
-        <Route path="/loaduserspotify" element={<ProtectedLoadSpotify />} />
-        {/*Everything except the welcome page is contingent on the user being logged in*/}
-      </Routes>
+      <div className='flex flex-col justify-center flex-1 w-full'>
+        <Routes>
+          <Route path='/' element={<Navigate to={user ? '/home' : '/welcome'} replace />} />
+          <Route path="/welcome" element={<Welcome />} />
+          <Route path="/home" element={<ProtectedHome />}/>
+          <Route path="/newuser" element={<ProtectedNewUser />} />
+          <Route path="/loaduserspotify" element={<ProtectedLoadSpotify />} />
+          <Route path="/profile" element={<ProtectedProfile />} />
+          <Route path="/friends" element={<ProtectedFriends />} />
+          {/*Everything except the welcome page is contingent on the user being logged in*/}
+        </Routes>
+      </div>
+
       <Toaster position='top-center' />
     </div>
   );

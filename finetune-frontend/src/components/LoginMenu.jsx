@@ -56,10 +56,10 @@ const LoginMenu = () => {
                     {badCreds && <Button type='button' variant='outline' size='sm' className='text-red !border-red pointer-events-none'>Invalid Username or Password</Button>}
                     <div className='flex gap-5'>
                         <Button type='button' variant='outline' size='lg' 
-                        className='text-orange !border-orange flex-1 hover:text-darkpurple hover:!bg-orange focus:scale-105 active:scale-105' onClick={setShowRegModal}>
+                        className='text-orange !border-orange flex-1 hover:text-darkpurple hover:!bg-orange focus:scale-105 active:scale-105 border-2' onClick={setShowRegModal}>
                             Register</Button>
                         <Button type='submit' variant='outline' size='lg' 
-                        className='text-indigo !border-indigo flex-1 hover:text-darkpurple hover:!bg-indigo focus:scale-105 active:scale-105'>
+                        className='text-indigo !border-indigo flex-1 hover:text-darkpurple hover:!bg-indigo focus:scale-105 active:scale-105 border-2'>
                             Login</Button>
                     </div>
                 </form>

@@ -11,7 +11,7 @@ const WelcomePage = () => {
     }
 
     return (
-        <div className='flex flex-col' onMouseMove={handleMouseMove}>
+        <div className='flex flex-col flex-none w-fit self-center' onMouseMove={handleMouseMove}>
             <LoginMenu />
             <InteractiveBackground coords={coords}/>
         </div>

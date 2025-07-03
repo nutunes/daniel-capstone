@@ -114,7 +114,8 @@ const RegisterModal = ({showModal, setShowModal}) => {
                                 className='text-palegreen !border-palegreen pointer-events-none p-2'>Valid Password</Button>}
                             {validPassword === false && <Button type='button' variant='outline' size='sm'
                                 className='text-red !border-red pointer-events-none p-2'>Invalid password, must be 8 characters</Button>}
-                            <Button type='submit' variant='outline' size='lg' className='text-indigo !border-indigo flex-1 hover:text-darkpurple hover:!bg-indigo focus:scale-105 active:scale-105 p-2'>
+                            <Button type='submit' variant='outline' size='lg' 
+                                className='text-indigo !border-indigo flex-1 hover:text-darkpurple hover:!bg-indigo focus:scale-105 active:scale-105 p-2 border-2'>
                                 Create Account
                             </Button>
                         </form>
