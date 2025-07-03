@@ -1,6 +1,7 @@
 import { useState } from "react";
 import InteractiveBackground from "@/components/InteractiveBackground";
 import LoginMenu from "@/components/LoginMenu";
+import Logo from '../assets/logo.svg'
 
 
 const WelcomePage = () => {
