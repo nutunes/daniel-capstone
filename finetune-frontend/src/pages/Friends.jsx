@@ -2,15 +2,15 @@ import { useAuth } from "@/components/AuthProvider"
 
 import LoggedInHeader from "@/components/LoggedInHeader";
 
-const Profile = () => {
+const Friends = () => {
     const { user } = useAuth();
 
 
     return (
         <div className='flex flex-col flex-1 w-full relative'>
-            <LoggedInHeader page='Profile'/>
+            <LoggedInHeader page='Friends'/>
             <div className='flex-1 flex flex-col justify-center items-center'>
-                <p className='font-fredoka'>Profile Page Placeholder</p>
+                <p className='font-fredoka'>Friends Page Placeholder</p>
                 <p className='font-fredoka'>{user}</p>
             </div>
         </div>
@@ -18,4 +18,4 @@ const Profile = () => {
 }
 
 
-export default Profile
+export default Friends

@@ -11,10 +11,11 @@ import Home from "./pages/Home";
 import NewUser from "./pages/NewUser";
 import LoadUserSpotify from "./pages/LoadUserSpotify";
 import Profile from "./pages/Profile";
+import Friends from "./pages/Friends";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 
-const validPaths = ['/newuser', '/loaduserspotify', '/profile']
+const validPaths = ['/newuser', '/loaduserspotify', '/profile', '/friends']
 
 function App() {
   const { user, setUser } = useAuth();
@@ -24,6 +25,7 @@ function App() {
   const ProtectedNewUser = ProtectedRoute(NewUser);
   const ProtectedLoadSpotify = ProtectedRoute(LoadUserSpotify);
   const ProtectedProfile = ProtectedRoute(Profile);
+  const ProtectedFriends = ProtectedRoute(Friends);
 
   const handleLogout = async () => {
     try {
@@ -76,6 +78,7 @@ function App() {
           <Route path="/newuser" element={<ProtectedNewUser />} />
           <Route path="/loaduserspotify" element={<ProtectedLoadSpotify />} />
           <Route path="/profile" element={<ProtectedProfile />} />
+          <Route path="/friends" element={<ProtectedFriends />} />
           {/*Everything except the welcome page is contingent on the user being logged in*/}
         </Routes>
       </div>

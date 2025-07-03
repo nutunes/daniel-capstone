@@ -9,7 +9,7 @@ const Home = () => {
 
     return (
         <div className='flex flex-col flex-1 w-full relative'>
-            <LoggedInHeader page='home'/>
+            <LoggedInHeader page='Home'/>
             <div className='flex-1 flex flex-col justify-center items-center'>
                 <div className='flex flex-col gap-5 w-fit'>
                     <Button variant='outline' size='lg'
