@@ -79,7 +79,7 @@ const LoginMenu = () => {
             </div>
             <Logo className='w-[240px] h-[240px] self-center text-gold hover:animate-draw' ref={logoRef}
                 style={{
-                    strokeDasharray: 88767.75,
+                    strokeDasharray: 44230,
                     strokeDashoffset: 0,
                     fillOpacity: 0,
                 }}/>

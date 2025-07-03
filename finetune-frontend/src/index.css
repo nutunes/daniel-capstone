@@ -28,7 +28,7 @@
   --animate-draw: draw 3s linear forwards;
   @keyframes draw {
     from {
-      stroke-dashoffset: 88767.75;
+      stroke-dashoffset: 44230;
       fill-opacity: 0;
     }
     to {
