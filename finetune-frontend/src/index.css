@@ -13,6 +13,7 @@
   --color-red: #a63446;
   --color-offwhite: #f5f5f5;
   --color-palegreen: #aaf0ad;
+  --color-gold: #b8860b;
 
   --animate-brightpulse: brightglow 2s ease-in-out infinite;
   @keyframes brightglow {
@@ -21,6 +22,18 @@
     }
     50% {
       filter: drop-shadow(0 0 20px var(--color-offwhite))
+    }
+  }
+
+  --animate-draw: draw 3s linear forwards;
+  @keyframes draw {
+    from {
+      stroke-dashoffset: 88767.75;
+      fill-opacity: 0;
+    }
+    to {
+      stroke-dashoffset: 0;
+      fill-opacity: 1;
     }
   }
 }
