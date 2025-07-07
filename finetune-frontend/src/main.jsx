@@ -6,7 +6,7 @@ import { AuthProvider } from './components/AuthProvider.jsx'
 import App from './App.jsx'
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+  //<StrictMode>
     <BrowserRouter>
       <ThemeProvider defaultTheme='dark' storagKey='vite-ui-theme'>
         <AuthProvider>
@@ -14,5 +14,5 @@ createRoot(document.getElementById('root')).render(
         </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>
-  </StrictMode>,
+  //</StrictMode>,
 )
