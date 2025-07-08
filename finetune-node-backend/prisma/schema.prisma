@@ -26,11 +26,12 @@ model User {
 }
 
 model Song {
-  id               String @id @default(uuid())
-  spotify_id       String @unique
-  title            String
-  album            String
-  spotify_album_id String
-  likedBy          User[] @relation("LikedSongs")
-  dislikedBy       User[] @relation("DislikedSongs")
+  id             String @id @default(uuid())
+  spotify_id     String @unique
+  recording_mbid String @unique
+  title          String
+  album          String
+  album_mbid     String
+  likedBy        User[] @relation("LikedSongs")
+  dislikedBy     User[] @relation("DislikedSongs")
 }
