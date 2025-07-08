@@ -26,12 +26,13 @@ model User {
 }
 
 model Song {
-  id             String @id @default(uuid())
-  spotify_id     String @unique
-  recording_mbid String @unique
+  id             String  @id @default(uuid())
+  spotify_id     String  @unique
+  recording_mbid String  @unique
+  isrc           String  @unique
   title          String
   album          String
-  album_mbid     String
-  likedBy        User[] @relation("LikedSongs")
-  dislikedBy     User[] @relation("DislikedSongs")
+  mfccs          Float[]
+  likedBy        User[]  @relation("LikedSongs")
+  dislikedBy     User[]  @relation("DislikedSongs")
 }
