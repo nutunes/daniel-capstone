@@ -24,7 +24,6 @@ const LoadUserSpotify = () => {
                 }),
                 credentials: 'include',
             })
-            console.log(response);
             if (!response || !response.ok){
                 throw new Error('failed to update refresh token')
             }

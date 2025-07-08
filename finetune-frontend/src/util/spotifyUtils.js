@@ -15,55 +15,11 @@ const checkIfInDatabase = async(spotifyId) => {
     }
 }
 
-//This function gets an album's MBID from Music Brainz
-const getReleaseID = async(albumName) => {
-    try {
-        const url = `https://musicbrainz.org/ws/2/release?query=${albumName}&limit=1&fmt=json`;
-        const response = await fetch(url, {
-            headers: {
-                'User-Agent': 'FineTune/1.0 ( daniel.palmer024@gmail.com )',
-                'Accept': 'application/json',
-            }
-        });
-        if (!response.ok){
-            if (response.status === 503){
-                console.log('hit rate limit');
-                //Try again in one second
-                await delay(1000);
-                return getReleaseID(albumName)
-            } else{
-                throw new Error('failed to get release id')
-            }
-        }
-        const responseJSON = await response.json();
-        return responseJSON.releases[0].id;
-    } catch(error){
-        console.error('failed to get release id' + error);
-    }
-}
 
-//This function normalizes strings so that comparing the titles of songs can be made with less error
-const normalizeString = (string) => {
-    return string
-        .replace(/\s*(feat\.?|ft\.?|with)\s+[^()\-]+/gi, '') // remove "feat. Name", "ft. Name", "with Name"
-        .replace(/\(.*?(feat\.?|ft\.?|with).*?\)/gi, '')     // remove anything in parentheses that mentions features
-        .normalize('NFKD')                  // Unicode normalization (decompose)
-        .replace(/[\u0300-\u036f]/g, '')   // Remove diacritics (what was separated with the previous line)
-        .toLowerCase()                     // Case insensitive
-        .replace(/[’‘‛❛❜′`ʻʼʽ]/g, "'")  // Normalize various apostrophes to straight '
-        .replace(/["“”„‟«»]/g, '"')       // Normalize quotes to "
-        .replace(/&/g, 'and')              // Convert & to and (optional)
-        .replace(/[\(\)\[\]\{\}]/g, '')   // Remove brackets/parentheses
-        .replace(/[.,;:!?\/\\\-–—―]/g, ' ') // Replace punctuation with space
-        .replace(/\s+/g, ' ')              // Collapse multiple spaces
-        .trim();                          // Trim leading/trailing spaces
-}
-
-//This function retrieves a recording's (song's) MBID from Music Brainz
-const getMBID = async(releaseID, title) => {
+//This function retrieves a recording's (song's) MBID using its International Standard Recording Code (ISRC) given by Spotify
+const getMBID = async(ISRC) => {
     try {
-        const url = `https://musicbrainz.org/ws/2/release/${releaseID}?inc=recordings&fmt=json`;
-        console.log(url);
+        const url = `https://musicbrainz.org/ws/2/recording?query=isrc:${ISRC}&fmt=json`;
         const response = await fetch(url, {
             headers: {
                 'User-Agent': 'FineTune/1.0 ( daniel.palmer024@gmail.com )',
@@ -81,40 +37,52 @@ const getMBID = async(releaseID, title) => {
             }
         }
         const responseJSON = await response.json();
-        const tracks = responseJSON.media[0].tracks;
-        const normalizedTitle = normalizeString(title);
-        for (let track of tracks){
-            const normalizedTrackTitle = normalizeString(track.title);
-            if (normalizedTrackTitle === normalizedTitle || normalizedTrackTitle.includes(normalizedTitle) || normalizedTitle.includes(normalizedTrackTitle)){
-                return track.recording.id;
-            } else {
-                console.log(`${normalizedTrackTitle} is not ${normalizedTitle}`)
+        const MBID = responseJSON.recordings[0].id;
+        return MBID;
+    } catch(error){
+        console.error('failed to get mbid ' + error);
+        console.log(url);
+    }
+}
+
+//This function gets the MFCCs from a recording's MBID
+const getMFCC = async(MBID) => {
+    try {
+        const url = `https://acousticbrainz.org/api/v1/low-level?recording_ids=${MBID}`;
+        const response = await fetch(url);
+        if (!response.ok){
+            if (response.status === 429){
+                console.log('hit rate limit');
+                await delay(1000);
+                return getMFCC(MBID);
+            } else{
+                throw new Error('failed to get mfcc')
             }
         }
+        const responseJSON = await response.json();
+        const mfccs = responseJSON[MBID]["0"].lowlevel.mfcc.mean;
+        return mfccs;
     } catch(error){
-        console.error('failed to get mbid' + error);
+        console.error('failed to get mfccs' + error);
     }
 }
 
 //This function puts a song in the database
 const uploadToDatabase = async(track) => {
     try {
-        //First get release ID
-        const releaseID = await getReleaseID(track.album.name);
-        if (!releaseID){
-            throw new Error('failed to get release id');
-        }
-
-        console.log('album id: ' + releaseID)
-        //Then get MBID from the releaseid
-        const MBID = await getMBID(releaseID, track.name);
+        //Get MBID from the track's isrc
+        const isrc = track.external_ids.isrc;
+        const MBID = await getMBID(isrc)
         if (!MBID){
             throw new Error('failed to get mbid');
         }
 
-        console.log('recording id: ' + MBID)
-        //TODO then get MFCC
-        
+        //Then get MFCCs
+        const mfccs = await getMFCC(MBID);
+        if (!mfccs){
+            throw new Error('failed to get mfccs');
+        }
+
         //Then put it in the database
         const response = await fetch(`http://127.0.0.1:3000/spotify/add_song`, {
             method: "POST",
@@ -124,9 +92,10 @@ const uploadToDatabase = async(track) => {
             body: JSON.stringify({
                 spotify_id: track.id,
                 recording_mbid: MBID,
+                isrc,
                 title: track.name,
                 album: track.album.name,
-                album_mbid: releaseID,
+                mfccs: mfccs,
             }),
             credentials: 'include',
         });
@@ -187,7 +156,6 @@ const uploadUsersTop300Tracks = async(token, done) => {
                 throw new Error('fetch songs fail')
             }
             const responseJSON = await response.json();
-            console.log(responseJSON.items);
 
             for (let track of responseJSON.items){
                 trackIDs.push(track.id);
@@ -216,7 +184,7 @@ const uploadUsersTop300Tracks = async(token, done) => {
     try {
         for (let track of newTracks){
             await uploadToDatabase(track);
-            await delay(2000);
+            await delay(1000);
         }
     } catch(error){
         console.error('error uploading song to database' + error);

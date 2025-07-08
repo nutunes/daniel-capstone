@@ -37,17 +37,18 @@ router.get('/exists', isAuthenticated, async(req, res)=>{
 //Add a song to the database
 router.post('/add_song', isAuthenticated, async(req, res)=>{
     try {
-        const { spotify_id, recording_mbid, title, album, album_mbid } = req.body;
-        if (!spotify_id || !recording_mbid || !title || !album || !album_mbid){
+        const { spotify_id, recording_mbid, isrc, title, album, mfccs } = req.body;
+        if (!spotify_id || !recording_mbid || !isrc || !title || !album || !mfccs){
             return res.status(400).json({error: 'you must include spotify id, recording mbid, title, album, album mbid'});
         }
         const song = await prisma.song.create({
             data: {
                 spotify_id,
                 recording_mbid,
+                isrc,
                 title,
                 album,
-                album_mbid
+                mfccs,
             }
         });
         res.json(song.id)
