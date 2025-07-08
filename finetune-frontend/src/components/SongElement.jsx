@@ -2,6 +2,8 @@ import { Button } from "./ui/button";
 import { toast } from "sonner";
 import { ThumbsDown, ThumbsUp } from "lucide-react";
 
+import { checkIfInDatabase, uploadToDatabase, addSongToUser} from "@/util/spotifyUtils";
+
 const SongElement = ({track, clear}) => {
     const name = track.name;
     const artists = track.artists;
@@ -9,23 +11,11 @@ const SongElement = ({track, clear}) => {
 
     const handleAddSong = async(like) => {
         try {
-            const response = await fetch(`http://127.0.0.1:3000/spotify/add_song`, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    like,
-                    spotify_id: track.id,
-                    title: name,
-                    album: track.album.name,
-                    spotify_album_id: track.album.id,
-                }),
-                credentials: 'include',
-            });
-            // if (!response || !response.ok){
-            //     throw new Error('failed to add song');
-            // }
+            const exists = await checkIfInDatabase(track.id);
+            if (!exists){
+                await uploadToDatabase(track);
+            }
+            await addSongToUser(like, track.id);
             clear();
             toast(`Successfully added ${name} to your ${like ? 'liked' : 'disliked'} songs`);
         } catch(error){
