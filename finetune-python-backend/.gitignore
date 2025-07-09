@@ -1,5 +1,8 @@
 # Python .gitignore template
 
+# Prisma_client
+/prisma_client
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
