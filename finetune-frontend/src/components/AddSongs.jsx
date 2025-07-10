@@ -29,7 +29,6 @@ const AddSongs = () => {
 
     const fetchToken = async() => {
         const cctoken = await getClientCredentialsToken();
-        console.log(cctoken);
         setToken(cctoken)
     }
 

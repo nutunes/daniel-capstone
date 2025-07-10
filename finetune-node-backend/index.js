@@ -7,11 +7,25 @@ const loginRoutes = require('./routes/loginRoutes')
 const spotifyRoutes = require('./routes/spotifyRoutes')
 const session = require('express-session')
 
+allowedOrigins = [
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:8000'
+]
+
 
 app.use(cors({
-    origin: 'http://127.0.0.1:5173',
-    credentials: true
-}));
+    origin: function(origin, callback){
+        if (!origin) {
+            return callback(null, true);
+        }
+        if (allowedOrigins.indexOf(origin) === -1){
+            const msg = 'Cors does not allow access to this site from this origin';
+            return callback(new Error(msg), false);
+        }
+        return callback(null, true);
+    },
+    credentials: true,
+}))
 
 
 app.use(express.json());

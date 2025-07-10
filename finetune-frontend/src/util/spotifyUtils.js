@@ -1,6 +1,3 @@
-import { CommonWords } from "./200MostCommonWords";
-
-
 //This function checks if a song is already present in the database
 const checkIfInDatabase = async(spotifyId) => {
     try {
@@ -33,7 +30,7 @@ const getMBID = async(ISRC) => {
                 console.log('hit rate limit');
                 //Try again in one second
                 await delay(1000);
-                return getMBID(releaseID)
+                return getMBID(ISRC)
             } else{
                 throw new Error('failed to get mbid')
             }
@@ -104,6 +101,7 @@ const uploadToDatabase = async(track) => {
         if (!response.ok){
             throw new Error('failed to upload song to database');
         }
+        return await response.json();
     } catch(error){
         console.error('error uploading song to database' + error);
     }
@@ -236,19 +234,6 @@ const getClientCredentialsToken = async() => {
     }
 }
 
-
-const get_random_spotify_song = async(categories) => {
-    try {
-        const token = await getClientCredentialsToken();
-        if (!token){
-            throw new Error('failed to get token');
-        }
-        
-
-    } catch(error) {
-        console.error('failed to get random spotify song ' + error);
-    }
-}
 
 
 export { checkIfInDatabase, uploadToDatabase, addSongToUser, uploadUsersTop300Tracks, getClientCredentialsToken }
