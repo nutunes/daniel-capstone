@@ -1,3 +1,5 @@
+import { CommonWords } from "./200MostCommonWords";
+
 
 //This function checks if a song is already present in the database
 const checkIfInDatabase = async(spotifyId) => {
@@ -229,9 +231,22 @@ const getClientCredentialsToken = async() => {
         }
         const responseJSON = await response.json();
         return responseJSON.access_token;
-
     } catch (error){
         console.error(error);
+    }
+}
+
+
+const get_random_spotify_song = async(categories) => {
+    try {
+        const token = await getClientCredentialsToken();
+        if (!token){
+            throw new Error('failed to get token');
+        }
+        
+
+    } catch(error) {
+        console.error('failed to get random spotify song ' + error);
     }
 }
 
