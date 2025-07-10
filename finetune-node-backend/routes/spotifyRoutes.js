@@ -77,51 +77,10 @@ router.patch('/add_song_to_user', isAuthenticated, async(req, res)=>{
     }
 })
 
-// This function checks if the querySong (a spotify track type) is in a song List
-const isSongInList = (querySong, songList) => {
-    for (let song of songList){
-        if (song.spotify_id === querySong.id){
-            return true;
-        }
-    }
-    return false;
-}
 
-router.get('/random_song_for_augment', async(req, res)=>{
+router.get('/random_song', async(req, res)=>{
     try {
-        const { user_id } = req.query;
-        if (!user_id){
-            return res.status(404).json({error: 'must include a user id as a query parameter'})
-        }
-        const user = await prisma.user.findUnique({
-            where: {id: user_id},
-            include: {
-                likedSongs: true,
-                dislikedSongs: true,
-            }
-        })
-        if (!user){
-            return res.status(404).json({error: 'user not found'})
-        }
-
-        // Ensure random song is not in user's liked or disliked songs
-        const likedSongs = user.likedSongs;
-        const dislikedSongs = user.dislikedSongs;
-        let randomSong = await getRandomSpotifySong();
-        while(true){
-            const isLiked = isSongInList(randomSong, likedSongs);
-            const isDisliked = isSongInList(randomSong, dislikedSongs);
-            if (isLiked || isDisliked){
-                //Try again
-                randomSong = await getRandomSpotifySong();
-            } else{
-                break;
-            }
-        }
-        const songInDB = await prisma.song.findUnique({
-            where: {spotify_id: randomSong.id}
-        })
-        res.json(songInDB)
+        res.json(await getRandomSpotifySong())
     } catch(error){
         res.status(500).json({error: 'server error'})
     }

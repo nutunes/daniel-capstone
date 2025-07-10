@@ -144,6 +144,15 @@ const getClientCredentialsToken = async() => {
     }
 }
 
+const getDBSongFromSpotifyID = async(spotify_id) => {
+    const songInDB = await prisma.song.findUnique({
+        where: {
+            spotify_id
+        }
+    })
+    return songInDB;
+}
+
 // This function gets a random spotify song by creating a random search query and getting a random song that results
 // from that search query
 //
@@ -188,15 +197,15 @@ const getRandomSpotifySong = async(retries=0) => {
                 if (!upload){
                     throw new Error('failed upload');
                 }
-                return song
+                return getDBSongFromSpotifyID(song.id);
             } catch { //Either the MBID or MFCCs were unable to be retrieved, try again for another random song
                 if (retries >= 100){
                     throw new Error('tried 100 times and failed');
                 }
                 return await getRandomSpotifySong(retries+1);
             }
-        } 
-        return song;
+        }
+        return getDBSongFromSpotifyID(song.id);
     } catch(error) {
         console.error('failed to get random spotify song ' + error);
     }
