@@ -15,6 +15,7 @@ import {
 import SongElement from "./SongElement";
 
 import { useAuth } from "./AuthProvider";
+import { getClientCredentialsToken } from "@/util/spotifyUtils";
 
 const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID
 const clientSecret = import.meta.env.VITE_SPOTIFY_CLIENT_SECRET
@@ -27,26 +28,9 @@ const AddSongs = () => {
     const [searchResults, setSearchResults] = useState([]);
 
     const fetchToken = async() => {
-        try {
-            const response = await fetch('https://accounts.spotify.com/api/token',{
-                method: 'POST',
-                headers: {
-                    'Authorization': 'Basic ' + btoa(clientId + ':' + clientSecret),
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: new URLSearchParams({
-                    grant_type: 'client_credentials'
-                }),
-            })
-            if (!response || !response.ok){
-                throw new Error('failed to get client token');
-            }
-            const responseJSON = await response.json();
-            setToken(responseJSON.access_token);
-
-        } catch (error){
-            console.error(error);
-        }
+        const cctoken = await getClientCredentialsToken();
+        console.log(cctoken);
+        setToken(cctoken)
     }
 
     const fetchSongs = async() => {

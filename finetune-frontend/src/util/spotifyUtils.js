@@ -1,3 +1,5 @@
+import { CommonWords } from "./200MostCommonWords";
+
 
 //This function checks if a song is already present in the database
 const checkIfInDatabase = async(spotifyId) => {
@@ -209,4 +211,44 @@ const uploadUsersTop300Tracks = async(token, done) => {
     }
 }
 
-export { checkIfInDatabase, uploadToDatabase, addSongToUser, uploadUsersTop300Tracks }
+const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID
+const clientSecret = import.meta.env.VITE_SPOTIFY_CLIENT_SECRET
+
+const getClientCredentialsToken = async() => {
+    try {
+        const response = await fetch('https://accounts.spotify.com/api/token',{
+            method: 'POST',
+            headers: {
+                'Authorization': 'Basic ' + btoa(clientId + ':' + clientSecret),
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                grant_type: 'client_credentials'
+            }),
+        })
+        if (!response || !response.ok){
+            throw new Error('failed to get client token');
+        }
+        const responseJSON = await response.json();
+        return responseJSON.access_token;
+    } catch (error){
+        console.error(error);
+    }
+}
+
+
+const get_random_spotify_song = async(categories) => {
+    try {
+        const token = await getClientCredentialsToken();
+        if (!token){
+            throw new Error('failed to get token');
+        }
+        
+
+    } catch(error) {
+        console.error('failed to get random spotify song ' + error);
+    }
+}
+
+
+export { checkIfInDatabase, uploadToDatabase, addSongToUser, uploadUsersTop300Tracks, getClientCredentialsToken }

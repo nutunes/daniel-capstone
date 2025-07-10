@@ -4,6 +4,8 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 const {isAuthenticated} = require('../middleware/auth')
 
+
+
 router.patch('/refresh_token', isAuthenticated, async(req, res)=>{
     try {
         const userId = req.session.userId;

@@ -60,6 +60,7 @@ const LoadUserSpotify = () => {
             uploadUsersTop300Tracks(response.access_token, setDoneLoading);
         } catch(error){
             console.error(error);
+            navigate('/');
         }
     }
 
