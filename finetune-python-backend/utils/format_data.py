@@ -25,7 +25,10 @@ def format_data(liked, disliked):
     np_liked = np.vstack([song.mfccs for song in liked])
     ones = np.ones((np_liked.shape[0], 1))
     np_liked = np.hstack((np_liked, ones))
-    np_disliked = np.vstack(([song.mfccs for song in disliked], [song["mfccs"] for song in augmented_disliked]))
+    if disliked:
+        np_disliked = np.vstack(([song.mfccs for song in disliked], [song["mfccs"] for song in augmented_disliked]))
+    else:
+        np_disliked = np.vstack([song["mfccs"] for song in augmented_disliked])
     neg_ones = -1 * np.ones((np_disliked.shape[0],1))
     np_disliked = np.hstack((np_disliked, neg_ones))
 
