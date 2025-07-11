@@ -3,9 +3,20 @@ import pandas as pd # likely will be used for data matrix creation and manipulat
 from scipy.stats import zscore # will be used to normalize the input data which helps the algorithm converge
 
 
-def cleanData():
-    #TODO: implement data cleaning
-    print("Cleaning data...")
+def organize_data(data):
+    # Split into features and labels
+    X = data[:, :-1]
+    y = data[:,-1].reshape(-1,1)
+
+    # Normalize X by making each column have mean 0 and standard deviation 1
+    # This helps with algorithm convergence
+    X = zscore(X, axis=0)
+
+    # Deal with bias by adding a column of 1s to X
+    bias = np.ones((X.shape[0], 1))
+    X = np.hstack((bias, X))
+    return X, y
+
 
 # This function calculates the Log-Sum-Exp trick which avoids overflow/underflow when raising numbers to high
 # powers and calculating the log of them
@@ -30,7 +41,8 @@ def log_sum_exp_trick(x):
 def find_test_error(w, X, y):
     dot_vec = np.dot(X, w)
     z = -y*dot_vec
-    log_vec = np.array([log_sum_exp_trick(np.array([0, zi])) for zi in z]) #Calculate cross entropy error for each feature
+    print(f"z: {z.shape}")
+    log_vec = np.array([log_sum_exp_trick(np.array([0, zi])) for zi in z.flat]) #Calculate cross entropy error for each feature
     return np.mean(log_vec)
 
 
@@ -80,14 +92,13 @@ def compute_gradient(w, X, y):
     dot_vec = np.dot(X, w)
 
     exponent_vec = np.exp(y * dot_vec)
-    denom = 1 + exponent_vec
+    denominator = 1 + exponent_vec
+    numerator = y * X
 
-    # must broadcast in order to have division result we want
-    broadcast_numerator = y[:, np.newaxis] * X #forces y to a 1 dimensional column vector
-    broadcast_denominator = denom[:, np.newaxis] #forces denom to a 1 dimensional column vector
 
-    frac = broadcast_numerator/broadcast_denominator #Reults in a matrix same size as X
-    gradient = -np.mean(frac, axis=0) #calculate the average for each column (average down the 0 axis)
+    frac = numerator/denominator #Reults in a matrix same size as X
+    #calculate the average for each column (average down the 0 axis) and reshape to force it to be a column vector
+    gradient = -np.mean(frac, axis=0).reshape(-1, 1)
     return gradient
 
 
@@ -100,7 +111,7 @@ def compute_gradient(w, X, y):
 #
 # This function returns the number of iterations taken, the resulting weight vector, and the in-sample error
 # that the resulting weight vector creates.
-def logistic_reg(X, y, w_init, max_its, eta, terminating_condition):
+def logistic_reg(X, y, w_init, max_its=10**6, eta=10**-5, terminating_condition=10**-3):
     t = 0
     w = w_init
     for i in range(max_its):
@@ -112,3 +123,12 @@ def logistic_reg(X, y, w_init, max_its, eta, terminating_condition):
             break
     e_in = find_test_error(w, X, y)
     return t, w, e_in
+
+def run(data):
+    X, y = organize_data(data)
+    # Initial weight vector is all zeroes of dimension the number of features plus bias
+    w_init = np.zeros((X.shape[1], 1))
+    print(f"X: {X.shape} y: {y.shape} w: {w_init.shape}")
+    t, w, e_in = logistic_reg(X, y, w_init)
+    print(f"t: {t}\n w: {w}\n e_in: {e_in}")
+    print(f"binary error: {calculate_binary_error(w, X, y)}")
