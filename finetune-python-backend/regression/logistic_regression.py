@@ -41,7 +41,6 @@ def log_sum_exp_trick(x):
 def find_test_error(w, X, y):
     dot_vec = np.dot(X, w)
     z = -y*dot_vec
-    print(f"z: {z.shape}")
     log_vec = np.array([log_sum_exp_trick(np.array([0, zi])) for zi in z.flat]) #Calculate cross entropy error for each feature
     return np.mean(log_vec)
 
@@ -53,7 +52,7 @@ def find_test_error(w, X, y):
 #
 # It returns the calculated probability of the data point belonging to the positive class through the sigmoid function
 def sigmoid(w, x):
-    dot = np.dot(w, x)
+    dot = np.dot(w.T, x)
     denom = 1 + np.exp(-1*dot)
     return 1/denom
 
@@ -71,7 +70,8 @@ def calculate_binary_error(w, X, y):
     if len(X) != len(y):
         print('Length mismatch')
         return None
-    for xi, yi in zip(X, y):
+    for xi, yi in zip(X, y.flat):
+        xi = xi.reshape(-1, 1)
         prob = sigmoid(w, xi)
         prediction = 1 if prob > 0.5 else -1
         if prediction != yi:
@@ -111,7 +111,7 @@ def compute_gradient(w, X, y):
 #
 # This function returns the number of iterations taken, the resulting weight vector, and the in-sample error
 # that the resulting weight vector creates.
-def logistic_reg(X, y, w_init, max_its=10**6, eta=10**-5, terminating_condition=10**-3):
+def logistic_reg(X, y, w_init, max_its=10**4, eta=3.5, terminating_condition=10**-6):
     t = 0
     w = w_init
     for i in range(max_its):
@@ -124,11 +124,21 @@ def logistic_reg(X, y, w_init, max_its=10**6, eta=10**-5, terminating_condition=
     e_in = find_test_error(w, X, y)
     return t, w, e_in
 
+def hyperparameter_tuning(X, y, w_init):
+    etas = [3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 4.0, 4.1, 4.2]
+    terminating_conditions = [10**-6, 10**-7, 10**-8, ] #very strict condition
+    max_its=10**4
+    for eta in etas:
+        for terminating_condition in terminating_conditions:
+            t, w, e_in = logistic_reg(X, y, w_init, max_its=max_its, eta=eta, terminating_condition=terminating_condition)
+            bin_err = calculate_binary_error(w, X, y)
+            print(f"eta: {eta} terminating_condition: {terminating_condition} e_in: {e_in} bin err = {bin_err}")
+
+
 def run(data):
     X, y = organize_data(data)
     # Initial weight vector is all zeroes of dimension the number of features plus bias
     w_init = np.zeros((X.shape[1], 1))
-    print(f"X: {X.shape} y: {y.shape} w: {w_init.shape}")
     t, w, e_in = logistic_reg(X, y, w_init)
-    print(f"t: {t}\n w: {w}\n e_in: {e_in}")
-    print(f"binary error: {calculate_binary_error(w, X, y)}")
+    print(f"iterations: {t} e_in: {e_in} binary error: {calculate_binary_error(w, X, y)}")
+    return w, e_in

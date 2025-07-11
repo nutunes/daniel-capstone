@@ -135,12 +135,12 @@ const getClientCredentialsToken = async() => {
             }),
         })
         if (!response || !response.ok){
-            if (response.status == 429){
+            if (response.status === 429){
                 //Rate limiting
                 await delay(1000)
                 return getClientCredentialsToken();
             }
-            throw new Error('failed to get client token');
+            throw new Error(`failed to get client token code=${response.status}`);
         }
         const responseJSON = await response.json();
         return responseJSON.access_token;
@@ -187,7 +187,12 @@ const getRandomSpotifySong = async(retries=0) => {
             }
         });
         if (!response || !response.ok){
-            throw new Error('failed to search for song')
+            if (response.status === 429){
+                //ratelimiting
+                await delay(1000);
+                return getRandomSpotifySong(retries)
+            }
+            throw new Error(`failed to search for song error code: ${response.status}`)
         }
         const responseJSON = await response.json();
         if (!responseJSON.tracks || !responseJSON.tracks.items || responseJSON.tracks.items.length < 1){
