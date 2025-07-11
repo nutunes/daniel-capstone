@@ -12,7 +12,7 @@ def format_data(liked, disliked):
     # that is good
     num_disliked = len(disliked)
     num_disliked_needed = math.floor(len(liked)/5)
-    augmented_disliked = disliked.copy()
+    augmented_disliked = []
 
     for _ in range(num_disliked_needed-num_disliked):
         rand_song = get_random_song()
@@ -23,6 +23,11 @@ def format_data(liked, disliked):
         print("added random song")
 
     np_liked = np.vstack([song.mfccs for song in liked])
-    np_disliked = np.vstack([song.mfccs for song in disliked])
+    ones = np.ones((np_liked.shape[0], 1))
+    np_liked = np.hstack((np_liked, ones))
+    np_disliked = np.vstack(([song.mfccs for song in disliked], [song["mfccs"] for song in augmented_disliked]))
+    neg_ones = -1 * np.ones((np_disliked.shape[0],1))
+    np_disliked = np.hstack((np_disliked, neg_ones))
 
-    print(f"liked num: {len(liked)} disliked num: {len(augmented_disliked)}")
+    formatted_matrix = np.vstack((np_liked, np_disliked))
+    return formatted_matrix

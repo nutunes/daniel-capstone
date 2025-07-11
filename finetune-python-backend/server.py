@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from utils.format_data import format_data
+from regression.logistic_regression import run
 
 prisma = Prisma()
 
@@ -31,6 +32,11 @@ app.add_middleware(
 @app.get("/will_i_like")
 async def will_i_like(user_id: str, song_id: str):
     #Test if a user will like a song
+    print('will i like called')
+
+
+@app.get("/run_regression")
+async def run_regression(user_id: str):
     user = await prisma.user.find_unique(
         where={"id": user_id},
         include={
@@ -38,8 +44,11 @@ async def will_i_like(user_id: str, song_id: str):
             "likedSongs": True,
         }
     )
-    format_data(liked=user.likedSongs, disliked=user.dislikedSongs)
+    formatted_data = format_data(liked=user.likedSongs, disliked=user.dislikedSongs)
+    run(formatted_data)
     return {"user": user}
+
+
 @app.get("/")
 async def root():
     songs = await prisma.song.find_many(

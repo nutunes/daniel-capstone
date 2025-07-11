@@ -135,6 +135,11 @@ const getClientCredentialsToken = async() => {
             }),
         })
         if (!response || !response.ok){
+            if (response.status == 429){
+                //Rate limiting
+                await delay(1000)
+                return getClientCredentialsToken();
+            }
             throw new Error('failed to get client token');
         }
         const responseJSON = await response.json();
