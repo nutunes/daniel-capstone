@@ -68,7 +68,8 @@ router.patch('/add_song_to_user', isAuthenticated, async(req, res)=>{
                     : {disconnect: {id: song.id}},
                 dislikedSongs: !like
                     ? {connect: {id: song.id}}
-                    : {disconnect: {id: song.id}}
+                    : {disconnect: {id: song.id}},
+                updateRegression: true,
             }
         });
         res.json(updatedUser.id);

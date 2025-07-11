@@ -20,6 +20,9 @@ model User {
   hashedPassword      String
   displayName         String?
   spotifyRefreshToken String?
+  updateRegression    Boolean  @default(true)
+  regressionWeights Float[]
+  recommendedSongs Song[] @relation("RecommendedSongs")
   dislikedSongs       Song[]   @relation("DislikedSongs")
   likedSongs          Song[]   @relation("LikedSongs")
 }
@@ -32,6 +35,7 @@ model Song {
   recording_mbid String  @unique
   mfccs          Float[]
   isrc           String  @unique
+  recommendedTo User[] @relation("RecommendedSongs")
   dislikedBy     User[]  @relation("DislikedSongs")
   likedBy        User[]  @relation("LikedSongs")
 }
