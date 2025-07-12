@@ -1,7 +1,7 @@
 import numpy as np # used to have vectorized operations that are very fast
 import pandas as pd # likely will be used for data matrix creation and manipulation
 from scipy.stats import zscore # will be used to normalize the input data which helps the algorithm converge
-
+from utils.format_data import format_data
 
 def organize_data(data):
     # Split into features and labels
@@ -142,3 +142,17 @@ def run(data):
     t, w, e_in = logistic_reg(X, y, w_init)
     print(f"iterations: {t} e_in: {e_in} binary error: {calculate_binary_error(w, X, y)}")
     return w, e_in
+
+
+def run_user_regression(user):
+    formatted_data = format_data(liked=user.likedSongs, disliked=user.dislikedSongs)
+    w, e_in = run(formatted_data)
+    return w, e_in
+
+
+def test_song(w, x):
+    x_bias = [1] + x
+    w_np = np.array(w).reshape(-1, 1)
+    x_np = np.array(x_bias).reshape(-1, 1)
+    odds = sigmoid(w_np, x_np)
+    return odds
