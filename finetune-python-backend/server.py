@@ -155,8 +155,9 @@ async def recommend_song(user_id: str):
                 odds = test_song(w, mfccs, means, stds)
                 if odds > ODDS_THRESHOLD:
                     return song
+        return None
     
-
+    
     except Exception as e:
         print(f"failed to run recommend song route {e}")
 
