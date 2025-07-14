@@ -2,9 +2,9 @@ from prisma_client import Prisma
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+import numpy as np
 
-from utils.format_data import format_data
-from regression.logistic_regression import run
+from regression.logistic_regression import run_user_regression, test_song
 
 prisma = Prisma()
 
@@ -29,24 +29,69 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Helper functions
+async def add_regression_to_user(user_id, w, means, stds):
+    try:
+        w_list = w.flatten().tolist()
+        means_list = means.flatten().tolist()
+        stds_list = stds.flatten().tolist()
+        updated_user = await prisma.user.update(
+            where={"id": user_id},
+            data={
+                "regressionWeights": {
+                    "set": w_list
+                },
+                "featureMeans": {
+                    "set": means_list
+                },
+                "featureStds": {
+                    "set": stds_list
+                },
+                "updateRegression": False
+            }
+        )
+        return updated_user
+    except Exception as e:
+        print(f"error updating user: {e}")
+        return None
+
+# Routes
 @app.get("/will_i_like")
 async def will_i_like(user_id: str, song_id: str):
-    #Test if a user will like a song
-    print('will i like called')
+    # Test if a user will like a song
+    try:
+        user = await prisma.user.find_unique(
+            where={"id": user_id},
+            include={
+                "dislikedSongs": True,
+                "likedSongs": True,
+            }
+        )
+        if not user:
+            raise Exception('failed to get user')
+        if user.updateRegression:
+            w, e_in, means, stds = run_user_regression(user)
+            user = await add_regression_to_user(user_id, w, means, stds)
+        w = user.regressionWeights
+        means = user.featureMeans
+        stds = user.featureStds
+        
+        song = await prisma.song.find_unique(
+            where={"id": song_id},
+        )
+        if not song:
+            raise Exception('failed to get song')
+        mfccs = song.mfccs
+        
+        odds = test_song(w, mfccs, means, stds)
+        return odds
+
+    except Exception as e:
+        print(f"failed to run will i like route {e}")
+        return None
 
 
-@app.get("/run_regression")
-async def run_regression(user_id: str):
-    user = await prisma.user.find_unique(
-        where={"id": user_id},
-        include={
-            "dislikedSongs": True,
-            "likedSongs": True,
-        }
-    )
-    formatted_data = format_data(liked=user.likedSongs, disliked=user.dislikedSongs)
-    run(formatted_data)
-    return {"user": user}
 
 
 @app.get("/")
