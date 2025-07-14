@@ -78,6 +78,22 @@ router.patch('/add_song_to_user', isAuthenticated, async(req, res)=>{
     }
 })
 
+//Get a user's liked songs
+router.get('/liked_songs', isAuthenticated, async(req, res)=>{
+    try {
+        const userId = req.session.userId;
+        const user = await prisma.user.findUnique({
+            where: {id: userId},
+            include: {
+                likedSongs: true,
+            }
+        });
+        res.json(user.likedSongs)
+    } catch(error){
+        res.status(500).json({error: 'server error'})
+    }
+})
+
 
 router.get('/random_song', async(req, res)=>{
     try {
