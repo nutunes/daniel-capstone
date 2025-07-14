@@ -129,6 +129,7 @@ const addSongToUser = async(like, spotifyId) => {
         if (!response.ok){
             throw new Error('failed to add song to user');
         }
+        return await response.json()
     } catch(error){
         console.error(error);
     }

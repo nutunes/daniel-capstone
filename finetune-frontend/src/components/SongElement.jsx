@@ -15,9 +15,13 @@ const SongElement = ({track, clear}) => {
             if (!exists){
                 await uploadToDatabase(track);
             }
-            await addSongToUser(like, track.id);
+            const user = await addSongToUser(like, track.id);
             clear();
-            toast(`Successfully added ${name} to your ${like ? 'liked' : 'disliked'} songs`);
+            if (user){
+                toast(`Successfully added ${name} to your ${like ? 'liked' : 'disliked'} songs`);
+            } else{
+                toast(`Could not extract information from ${name}, please add another song`)
+            }
         } catch(error){
             console.error(error);
         }
