@@ -2,6 +2,7 @@ from prisma_client import Prisma
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+import numpy as np
 
 from regression.logistic_regression import run_user_regression, test_song
 
@@ -30,14 +31,22 @@ app.add_middleware(
 )
 
 # Helper functions
-async def add_regression_to_user(user_id, w):
+async def add_regression_to_user(user_id, w, means, stds):
     try:
         w_list = w.flatten().tolist()
+        means_list = means.flatten().tolist()
+        stds_list = stds.flatten().tolist()
         updated_user = await prisma.user.update(
             where={"id": user_id},
             data={
                 "regressionWeights": {
                     "set": w_list
+                },
+                "featureMeans": {
+                    "set": means_list
+                },
+                "featureStds": {
+                    "set": stds_list
                 },
                 "updateRegression": False
             }
@@ -62,9 +71,11 @@ async def will_i_like(user_id: str, song_id: str):
         if not user:
             raise Exception('failed to get user')
         if user.updateRegression:
-            w, e_in = run_user_regression(user)
-            user = await add_regression_to_user(user_id, w)
+            w, e_in, means, stds = run_user_regression(user)
+            user = await add_regression_to_user(user_id, w, means, stds)
         w = user.regressionWeights
+        means = user.featureMeans
+        stds = user.featureStds
         
         song = await prisma.song.find_unique(
             where={"id": song_id},
@@ -72,8 +83,8 @@ async def will_i_like(user_id: str, song_id: str):
         if not song:
             raise Exception('failed to get song')
         mfccs = song.mfccs
-        odds = test_song(w, mfccs)
-        print(f"odds: {odds}")
+        
+        odds = test_song(w, mfccs, means, stds)
         return odds
 
     except Exception as e:

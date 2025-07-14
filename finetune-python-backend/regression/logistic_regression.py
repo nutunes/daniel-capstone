@@ -10,12 +10,15 @@ def organize_data(data):
 
     # Normalize X by making each column have mean 0 and standard deviation 1
     # This helps with algorithm convergence
-    X = zscore(X, axis=0)
+    means = np.mean(X, axis=0)
+    stds = np.std(X, axis=0)
+    X = (X - means) / stds
+
 
     # Deal with bias by adding a column of 1s to X
     bias = np.ones((X.shape[0], 1))
     X = np.hstack((bias, X))
-    return X, y
+    return X, y, means, stds
 
 
 # This function calculates the Log-Sum-Exp trick which avoids overflow/underflow when raising numbers to high
@@ -136,23 +139,29 @@ def hyperparameter_tuning(X, y, w_init):
 
 
 def run(data):
-    X, y = organize_data(data)
+    X, y, means, stds = organize_data(data)
     # Initial weight vector is all zeroes of dimension the number of features plus bias
     w_init = np.zeros((X.shape[1], 1))
     t, w, e_in = logistic_reg(X, y, w_init)
     print(f"iterations: {t} e_in: {e_in} binary error: {calculate_binary_error(w, X, y)}")
-    return w, e_in
+    return w, e_in, means, stds
 
 
 def run_user_regression(user):
     formatted_data = format_data(liked=user.likedSongs, disliked=user.dislikedSongs)
-    w, e_in = run(formatted_data)
-    return w, e_in
+    w, e_in, means, stds = run(formatted_data)
+    return w, e_in, means, stds
 
 
-def test_song(w, x):
-    x_bias = [1] + x
+def test_song(w, x, means, stds):
+    x = np.array(x)
+    means = np.array(means)
+    stds = np.array(stds)
+    x_standardized = (x - means) / stds
+
+    x_bias = np.insert(x_standardized, 0, 1)
     w_np = np.array(w).reshape(-1, 1)
-    x_np = np.array(x_bias).reshape(-1, 1)
+    x_np = x_bias.reshape(-1, 1)
     odds = sigmoid(w_np, x_np)
-    return odds
+    print(f"odds: {float(odds)}")
+    return float(odds)
