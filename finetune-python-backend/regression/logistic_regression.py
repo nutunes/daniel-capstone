@@ -163,5 +163,4 @@ def test_song(w, x, means, stds):
     w_np = np.array(w).reshape(-1, 1)
     x_np = x_bias.reshape(-1, 1)
     odds = sigmoid(w_np, x_np)
-    print(f"odds: {float(odds)}")
     return float(odds)
