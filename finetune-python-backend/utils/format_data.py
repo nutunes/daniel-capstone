@@ -11,7 +11,8 @@ def format_data(liked, disliked):
     # Maintain a 5:1 ratio liked:disliked so that we don't overwhelm with random songs, if disliked exceeds this ratio
     # that is good
     num_disliked = len(disliked)
-    num_disliked_needed = math.floor(len(liked)/5)
+    ratio = math.floor(len(liked)/5)
+    num_disliked_needed = ratio if ratio < 20 else 20
     augmented_disliked = []
 
     for _ in range(num_disliked_needed-num_disliked):
