@@ -9,6 +9,7 @@ from regression.logistic_regression import run_user_regression, test_song
 
 MAX_ATTEMPTS = 20
 ODDS_THRESHOLD = 0.75
+PLAYLIST_LENGTH = 30
 
 prisma = Prisma()
 
@@ -83,6 +84,23 @@ async def get_songs_not_in_list(ignore):
         print(f"failed to get song to recommend {e}")
         return []
 
+async def add_recommended_to_user(user_id, recommended):
+    try:
+        rec_ids = [song['id'] for song in recommended]
+        updated_user = await prisma.user.update(
+            where={"id": user_id},
+            data={
+                "recommendedSongs": {
+                    "connect": [{"id": rec_id} for rec_id in rec_ids]
+                }
+            }
+        )
+        return updated_user
+
+    except Exception as e:
+        print(f"Failed to add recommended songs to user {e}")
+        return None
+
 
 
 # Routes
@@ -154,14 +172,65 @@ async def recommend_song(user_id: str):
                 mfccs = song['mfccs']
                 odds = test_song(w, mfccs, means, stds)
                 if odds > ODDS_THRESHOLD:
+                    await add_recommended_to_user(user_id, [song])
                     return song
         return None
     
     
     except Exception as e:
         print(f"failed to run recommend song route {e}")
+        return None
 
 
+@app.get("/recommend_playlist")
+async def recommend_playlist(user_id: str):
+    try:
+        user = await prisma.user.find_unique(
+            where={"id": user_id},
+            include={
+                "recommendedSongs": True,
+                "dislikedSongs": True,
+                "likedSongs": True,
+            }
+        )
+        if not user:
+            raise Exception('failed to get user')
+        if user.updateRegression:
+            w, e_in, means, stds = run_user_regression(user)
+            user = await add_regression_to_user(user_id, w, means, stds)
+        w = user.regressionWeights
+        means = user.featureMeans
+        stds = user.featureStds
+        
+        # Make empty lists if doesn't exist so they can be chained together
+        prev_recommended = user.recommendedSongs or []
+        liked = user.likedSongs or []
+        disliked = user.dislikedSongs or []
+        used = [song.id for song in chain(prev_recommended, liked, disliked)]
+
+
+        playlist = []
+        for _ in range(MAX_ATTEMPTS):
+            rand_songs = await get_songs_not_in_list(used)
+            for song in rand_songs:
+                mfccs = song['mfccs']
+                odds = test_song(w, mfccs, means, stds)
+                if odds > ODDS_THRESHOLD:
+                    if song in playlist:
+                        continue
+                    playlist.append(song)
+                    if len(playlist) >= PLAYLIST_LENGTH:
+                        await add_recommended_to_user(user_id, playlist)
+                        return playlist
+                    
+        # If here the playlist is incomplete - return it anyways
+        return playlist
+
+
+
+    except Exception as e:
+        print(f"failed to run recommended song route {e}")
+        return None
 
 
 @app.get("/")
