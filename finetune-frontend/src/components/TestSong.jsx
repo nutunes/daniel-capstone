@@ -10,7 +10,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import SongElement from "./SongElement";
+
+import TestSongElement from "./TestSongElement";
 
 import { useAuth } from "./AuthProvider";
 import { getClientCredentialsToken } from "@/util/spotifyUtils";
@@ -64,17 +65,17 @@ const AddSongs = () => {
         <Dialog>
             <DialogTrigger asChild>
                 <Button variant='outline' size='lg'
-                    className='text-indigo !border-indigo hover:text-background hover:!bg-indigo 
-                    focus:scale-105 active:scale-105 p-15 text-4xl border-5'
-                    >Add Songs Manually</Button>
+                    className='text-indigo !border-indigo hover:text-background hover:!bg-indigo focus:scale-105 
+                    active:scale-105 p-15 text-4xl border-5 w-full'
+                    >Test Song</Button>
             </DialogTrigger>
             <DialogContent className='w-900px'>
                 <DialogHeader>
                     <DialogTitle className='text-center text-5xl font-fredoka'>
-                        Manually Add Songs
+                        Test a Song!
                     </DialogTitle>
-                    <DialogDescription className='font-fredoka'>
-                        Add songs that you either like or dislike to tailor the algorithm to your music taste!
+                    <DialogDescription className='font-fredoka text-center'>
+                        Search for a song to test if you will like it
                     </DialogDescription>
                 </DialogHeader>
                 <div className='flex flex-row gap-2'>
@@ -89,7 +90,7 @@ const AddSongs = () => {
                 {<div className='overflow-y-auto max-h-[400px] mt-4 flex flex-col gap-4' style={{scrollbarWidth: 'thin'}}>
                     {searchResults.map((track)=>{
                         return (
-                            <SongElement 
+                            <TestSongElement
                                 track={track}
                                 key={track.id}
                                 clear={clearSearch}

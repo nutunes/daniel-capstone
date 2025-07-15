@@ -2,6 +2,7 @@ import { useAuth } from "@/components/AuthProvider";
 
 import LoggedInHeader from "@/components/LoggedInHeader";
 import { Button } from "@/components/ui/button";
+import TestSong from "@/components/TestSong";
 
 
 const Home = () => {
@@ -12,10 +13,7 @@ const Home = () => {
             <LoggedInHeader page='Home'/>
             <div className='flex-1 flex flex-col justify-center items-center'>
                 <div className='flex flex-col gap-5 w-fit'>
-                    <Button variant='outline' size='lg'
-                        className='text-indigo !border-indigo hover:text-background hover:!bg-indigo 
-                        focus:scale-105 active:scale-105 p-15 text-4xl border-5 w-full'
-                        >Test Song</Button>
+                    <TestSong />
 
                     <Button variant='outline' size='lg'
                         className='text-red !border-red hover:text-background hover:!bg-red 
