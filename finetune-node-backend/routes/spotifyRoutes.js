@@ -94,10 +94,24 @@ router.get('/liked_songs', isAuthenticated, async(req, res)=>{
     }
 })
 
-
+//Get a random song from spotify that is in the database
 router.get('/random_song', async(req, res)=>{
     try {
         res.json(await getRandomSpotifySong())
+    } catch(error){
+        res.status(500).json({error: 'server error'})
+    }
+})
+
+
+//Check if a user's algorithm needs to update
+router.get('/reg_updated', isAuthenticated, async(req, res)=>{
+    try {
+        const userId = req.session.userId;;
+        const user = await prisma.user.findUnique({
+            where: {id: userId}
+        });
+        res.json(user.updateRegression)
     } catch(error){
         res.status(500).json({error: 'server error'})
     }
