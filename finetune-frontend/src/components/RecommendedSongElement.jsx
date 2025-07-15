@@ -2,7 +2,7 @@ import { Button } from "./ui/button";
 import { toast } from "sonner";
 import { ThumbsDown, ThumbsUp } from "lucide-react";
 
-import { checkIfInDatabase, uploadToDatabase, addSongToUser} from "@/util/spotifyUtils";
+import { addSongToUser} from "@/util/spotifyUtils";
 
 const RecommendedSongElement = ({track, updated}) => {
     const name = track.name;
