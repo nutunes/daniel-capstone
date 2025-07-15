@@ -3,6 +3,7 @@ import { useAuth } from "@/components/AuthProvider";
 import LoggedInHeader from "@/components/LoggedInHeader";
 import { Button } from "@/components/ui/button";
 import TestSong from "@/components/TestSong";
+import RecommendSong from "@/components/RecommendSong";
 
 
 const Home = () => {
@@ -15,10 +16,7 @@ const Home = () => {
                 <div className='flex flex-col gap-5 w-fit'>
                     <TestSong />
 
-                    <Button variant='outline' size='lg'
-                        className='text-red !border-red hover:text-background hover:!bg-red 
-                        focus:scale-105 active:scale-105 p-15 text-4xl border-5 w-full'
-                        >Get New Song</Button>
+                    <RecommendSong />
 
                     <Button variant='outline' size='lg'
                         className='text-darkgreen !border-darkgreen hover:text-background hover:!bg-darkgreen 

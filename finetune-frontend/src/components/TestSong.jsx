@@ -62,7 +62,7 @@ const AddSongs = () => {
     }
 
     return (
-        <Dialog>
+        <Dialog onOpenChange={clearSearch}>
             <DialogTrigger asChild>
                 <Button variant='outline' size='lg'
                     className='text-indigo !border-indigo hover:text-background hover:!bg-indigo focus:scale-105 

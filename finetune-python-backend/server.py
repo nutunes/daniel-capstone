@@ -172,6 +172,7 @@ async def recommend_song(user_id: str):
                 mfccs = song['mfccs']
                 odds = test_song(w, mfccs, means, stds)
                 if odds > ODDS_THRESHOLD:
+                    print(odds)
                     await add_recommended_to_user(user_id, [song])
                     return song
         return None
