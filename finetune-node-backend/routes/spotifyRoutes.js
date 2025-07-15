@@ -118,4 +118,28 @@ router.get('/reg_updated', isAuthenticated, async(req, res)=>{
 })
 
 
+//Get a user's recommended songs
+router.get('/songs_for_feedback', isAuthenticated, async(req, res)=>{
+    try{
+        const userId = req.session.userId;
+        const songs = await prisma.song.findMany({
+            where:{
+                recommendedTo: {
+                    some: {id: userId}
+                },
+                likedBy: {
+                    none: {id: userId}
+                },
+                dislikedBy: {
+                    none: {id: userId}
+                }
+            }
+        });
+        res.json(songs)
+    } catch(error){
+        console.error(error);
+    }
+})
+
+
 module.exports = router;
