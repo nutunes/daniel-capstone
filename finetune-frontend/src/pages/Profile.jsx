@@ -1,6 +1,8 @@
 import { useAuth } from "@/components/AuthProvider"
 
 import LoggedInHeader from "@/components/LoggedInHeader";
+import AddSongs from "@/components/AddSongs";
+import ReviewRecommendations from "@/components/ReviewRecommendations";
 
 const Profile = () => {
     const { user } = useAuth();
@@ -10,8 +12,10 @@ const Profile = () => {
         <div className='flex flex-col flex-1 w-full relative'>
             <LoggedInHeader page='Profile'/>
             <div className='flex-1 flex flex-col justify-center items-center'>
-                <p className='font-fredoka'>Profile Page Placeholder</p>
-                <p className='font-fredoka'>{user}</p>
+                <div className='flex flex-col gap-5 w-fit'>
+                    <AddSongs />
+                    <ReviewRecommendations />
+                </div>
             </div>
         </div>
     )
