@@ -62,7 +62,7 @@ const RecommendSong = () => {
                         Get New Song!
                     </DialogTitle>
                     <DialogDescription className='font-fredoka text-center'>
-                        Get a new song that FineTune knows you will like! This will only give you a song with a greater than 80% chance of you liking it.
+                        Get a new song that FineTune knows you will like! This will only give you a song with a greater than 75% chance of you liking it.
                     </DialogDescription>
                 </DialogHeader>
                 <div className='flex flex-row gap-2 justify-center'>
