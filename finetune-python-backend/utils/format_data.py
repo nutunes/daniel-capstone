@@ -13,6 +13,7 @@ def format_data(liked, disliked):
     num_disliked = len(disliked)
     ratio = math.floor(len(liked)/5)
     num_disliked_needed = ratio if ratio < 20 else 20
+    num_disliked_needed = num_disliked_needed if num_disliked_needed > 1 else 1
     augmented_disliked = []
 
     for _ in range(num_disliked_needed-num_disliked):

@@ -20,7 +20,7 @@ const checkIfInDatabase = async(spotify_id) => {
     const song = await prisma.song.findUnique({
         where: {spotify_id}
     })
-    const exists = song ? true : false;
+    const exists = song ? song.id : false;
     return exists;
 }
 
