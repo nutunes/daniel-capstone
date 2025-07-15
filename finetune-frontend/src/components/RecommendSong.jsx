@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -9,13 +9,30 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "./ui/button";
 import { toast } from "sonner";
+import { ThumbsUp, ThumbsDown } from "lucide-react";
 
 import { useAuth } from "./AuthProvider";
-import { getClientCredentialsToken } from "@/util/spotifyUtils";
+
+import { addSongToUser } from "@/util/spotifyUtils";
 
 const RecommendSong = () => {
     const [recSpotifyId, setRecSpotifyId] = useState(null);
     const { user } = useAuth();
+
+
+    const handleAddSong = async(like) => {
+        try {
+            const user = await addSongToUser(like, recSpotifyId);
+            if (user){
+                toast(`Successfully added ${name} to your ${like ? 'liked' : 'disliked'} songs`);
+            } else{
+                toast(`Could not extract information from ${name}, please add another song`)
+            }
+            setRecSpotifyId(null)
+        } catch(error){
+            console.error(error);
+        }
+    }
 
 
     const handleGetRecommendation = async() => {
@@ -53,10 +70,20 @@ const RecommendSong = () => {
                         className='text-orange !border-orange hover:text-background hover:!bg-orange
                         focus:scale-105 active:scale-105 p-3 border-2'
                         onClick={handleGetRecommendation}>Give me a song!</Button>}
-                    {recSpotifyId && <iframe data-testid="embed-iframe" className='rounded-lg' 
+                    {recSpotifyId && <div className='flex flex-col w-full'>
+                        <iframe data-testid="embed-iframe" className='rounded-lg' 
                         src={`https://open.spotify.com/embed/track/${recSpotifyId}?utm_source=generator`} 
                         width="100%" height="200px" allow="autoplay; 
-                        clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>}
+                        clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+                        <div className='flex flex-row gap-2 w-full' >
+                            <Button variant='outline' size='sm'
+                                className='text-palegreen !border-palegreen hover:text-darkpurple hover:!bg-palegreen flex-1'
+                                onClick={()=>handleAddSong(true)}><ThumbsUp/></Button>
+                            <Button variant='outline' size='sm'
+                                className='text-red !border-red hover:text-darkpurple hover:!bg-red flex-1'
+                                onClick={()=>handleAddSong(false)}><ThumbsDown/></Button>
+                        </div>
+                    </div>}
                 </div>
             </DialogContent>
         </Dialog>
