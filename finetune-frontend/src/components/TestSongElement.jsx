@@ -18,6 +18,13 @@ const TestSongElement = ({track, clear}) => {
                 exists = await checkIfInDatabase(track.id)
             }
             if (exists){
+                const updateResponse = await fetch(`http://127.0.0.1:3000/spotify/reg_updated`,{
+                    credentials: 'include',
+                })
+                const needUpdate = await updateResponse.json();
+                if (needUpdate){
+                    toast('You have recently updated your liked/disliked songs so your algorithm needs to refresh. Please wait briefly.')
+                }
                 const response = await fetch(`http://127.0.0.1:8000/will_i_like?user_id=${user}&song_id=${exists}`)
                 const odds = await response.json()
                 const rounded_odds = (odds*100).toFixed(2)
