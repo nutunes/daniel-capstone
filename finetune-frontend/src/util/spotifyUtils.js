@@ -162,7 +162,6 @@ const uploadUsersTop300Tracks = async(token, done) => {
                 trackIDs.push(track.id);
                 const exists = await checkIfInDatabase(track.id);
                 if (!exists){
-                    //Song is already in database, nothing further to do except for link it with the user
                     newTracks.push(track);
                 }
             }
