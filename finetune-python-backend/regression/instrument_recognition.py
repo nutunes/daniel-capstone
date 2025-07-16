@@ -6,7 +6,7 @@ import re
 
 
 
-def create_features_and_labels():
+def create_data_matrix():
     data_folder = '../IRMAS-TrainingData'
     instrument_folders = glob.glob(os.path.join(data_folder, '*/')) 
     instruments = ['cel', 'cla', 'flu', 'gac', 'gel', 'org', 'pia', 'sax', 'tru', 'vio', 'voi']
@@ -28,15 +28,15 @@ def create_features_and_labels():
             # Now use librosa to get mfccs for each .wav file
             y, sr = librosa.load(track, sr=44100) # IRMAS sampled at 44.1kHz
             mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
-            #Librosa returns mfccs for each time series, I want average so get the mean
+            #Librosa returns mfccs for each time series, I want average so get the mean down each column
             mean_mfccs = np.mean(mfccs, axis=1)
             features.append(mean_mfccs)
     
-    return np.array(labels), np.array(features)
+    return np.hstack([np.array(features), np.array(labels)])
 
 
 
 
 if __name__ == '__main__':
-    X, Y = create_features_and_labels()
-    print(f'X: {X.shape} Y: {Y.shape}')
+    data = create_data_matrix()
+    print(data)

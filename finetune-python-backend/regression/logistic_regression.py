@@ -2,6 +2,49 @@ import numpy as np # used to have vectorized operations that are very fast
 import pandas as pd # likely will be used for data matrix creation and manipulation
 from utils.format_data import format_data
 
+
+def train_test_split(data, ratio=0.8, seed=None):
+    # If seed, the random number is the same across all runs with the same seed. This is for testing
+    rng = np.random.default_rng(seed) 
+    # Get a random permutation of integers from 0 to the number of rows - 1
+    # These will serve as the random indices that create the split
+    shuffled_indices = rng.permutation(data.shape[0])
+    # Get the index that generates the split you want
+    split_index = int(data.shape[0]*ratio)
+    
+    train_indices = shuffled_indices[:split_index]
+    test_indices = shuffled_indices[split_index:]
+
+    train_data = data[train_indices]
+    test_data = data[test_indices]
+    return train_data, test_data
+
+
+# This function splits a data matrix into k smaller matrices that are randomly produced from rows of
+# the data matrix. It is used in k-fold cross validation
+# 
+# This function returns a list of tuples that contain the train X, train y, test X, and test y, 
+# normalized, so that they don't have to be recalculated each time you change the hyperparameters
+def split_into_folds(data, num_folds=5, seed=None):
+    rng = np.random.default_rng(seed)
+
+    shuffled_indices = rng.permutation(data.shape[0])
+
+    folds = np.array_split(shuffled_indices, num_folds)
+
+    splits = []
+    for i, val_fold in enumerate(folds):
+        val_data = data[val_fold]
+        train_indices = np.concatenate(folds[:i] + folds[i+1:])
+        train_data = data[train_indices]
+        # Get labels and normalized features for train and validation data
+        train_X, train_y, val_X, val_y, _, _ = extract_features_and_normalize(train_data, val_data)
+        splits.append((train_X, train_y, val_X, val_y))
+        
+    return splits
+
+
+# Does not implement any testing/validation sets
 def organize_data(data):
     # Split into features and labels
     X = data[:, :-1]
@@ -18,6 +61,32 @@ def organize_data(data):
     bias = np.ones((X.shape[0], 1))
     X = np.hstack((bias, X))
     return X, y, means, stds
+
+
+# This function splits training and testing data into features and labels, and normalizes the features
+# according to the training data
+def extract_features_and_normalize(train_data, test_data):
+    train_X = train_data[:, :-1]
+    train_y = train_data[:, -1].reshape(-1, 1)
+    test_X = test_data[:, :-1]
+    test_y = test_data[:, -1].reshape(-1, 1)
+
+    train_means = np.mean(train_X, axis=0)
+    train_stds = np.std(train_X, axis=0)
+
+    train_X = (train_X - train_means)/train_stds
+    # Normalize the test data by the means and standard deviations of the training data so that it 
+    # can accurately estimate out of sample error
+    test_X = (test_X - train_means)/train_stds
+
+    # Deal with bias by adding a column of 1s to X
+    train_bias = np.ones((train_X.shape[0], 1))
+    test_bias = np.ones((test_X.shape[0], 1))
+    train_X = np.hstack((train_bias, train_X))
+    test_X = np.hstack((test_bias, test_X))
+    
+
+    return train_X, train_y, test_X, test_y, train_means, train_stds
 
 
 # This function calculates the Log-Sum-Exp trick which avoids overflow/underflow when raising numbers to high
@@ -118,7 +187,7 @@ def logistic_reg(X, y, w_init, max_its=10**4, eta=3.5, terminating_condition=10*
     w = w_init
     for i in range(max_its):
         gradient_ein = compute_gradient(w, X, y)
-        w = w - eta * gradient_ein
+        w -= eta * gradient_ein
         t+=1
         infinity_norm = np.linalg.norm(gradient_ein, np.inf)
         if infinity_norm <= terminating_condition:
@@ -126,15 +195,53 @@ def logistic_reg(X, y, w_init, max_its=10**4, eta=3.5, terminating_condition=10*
     e_in = find_test_error(w, X, y)
     return t, w, e_in
 
-def hyperparameter_tuning(X, y, w_init):
-    etas = [3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 4.0, 4.1, 4.2]
-    terminating_conditions = [10**-6, 10**-7, 10**-8, ] #very strict condition
-    max_its=10**4
+
+
+def run_k_fold_cross_validation_regression(data, num_folds=5, seed=1):
+    train, test = train_test_split(data, seed=seed) # Take out 20% of data to be used for testing
+
+    #Define hyperparameter values that you are going to optimize among
+    etas = [0.01, 0.1, 1, 3, 4, 5]
+    terminating_conditions = [10**-3, 10**-4, 10**-5]
+    max_its = [10**3, 10**4]
+
+    #Optimal values that you are going to find as the algorithm runs
+    best_eta = None
+    best_terminating_condition = None
+    best_max_its = None
+    best_error = None
+
+    folds = split_into_folds(train, num_folds=num_folds, seed=seed) # Split training data into folds
     for eta in etas:
         for terminating_condition in terminating_conditions:
-            t, w, e_in = logistic_reg(X, y, w_init, max_its=max_its, eta=eta, terminating_condition=terminating_condition)
-            bin_err = calculate_binary_error(w, X, y)
-            print(f"eta: {eta} terminating_condition: {terminating_condition} e_in: {e_in} bin err = {bin_err}")
+            for max_it in max_its:
+                # Once here you have a designated set of hyperparameters
+                # Now must run 5 fold cross validation on it
+                errors = []
+                for fold in folds:
+                    train_X, train_y, val_X, val_y = fold
+                    w_init = np.zeros((train_X.shape[1], 1))
+                    t, w, e_in = logistic_reg(X=train_X, y=train_y, w_init=w_init, max_its=max_it, eta=eta, terminating_condition=terminating_condition)
+                    e_val = find_test_error(w, val_X, val_y)
+                    errors.append(e_val)
+                avg_e_val = np.mean(errors)
+                if best_error is None or avg_e_val < best_error:
+                    best_eta = eta
+                    best_terminating_condition = terminating_condition
+                    best_max_its = max_it
+                    best_error = avg_e_val
+    
+    # Once here, hyperparameters are ideal. Now run the model on the entire training set with these ideal
+    # hyperparameters and then test using the reserved testing set. This is an unbiased estimator of the 
+    # out of sample error
+    train_X, train_y, test_X, test_y, train_means, train_stds = extract_features_and_normalize(train, test)
+    w_init = np.zeros((train_X.shape[1], 1))
+    t, w, e_in = logistic_reg(X=train_X, y=train_y, w_init=w_init, max_its=best_max_its, eta=best_eta, terminating_condition=best_terminating_condition)
+    e_test = find_test_error(w, test_X, test_y)
+    bin_e_test = calculate_binary_error(w, test_X, test_y)
+    return w, e_test, bin_e_test, train_means, train_stds
+
+
 
 
 def run(data):
@@ -152,6 +259,8 @@ def run_user_regression(user):
     return w, e_in, means, stds
 
 
+# This function takes a song (mfcc vector) and a user's algorithm (weight vector) and calculates
+# the odds of the user liking the song
 def test_song(w, x, means, stds):
     x = np.array(x)
     means = np.array(means)
