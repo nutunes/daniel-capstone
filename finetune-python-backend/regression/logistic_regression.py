@@ -137,17 +137,12 @@ def sigmoid(w, x):
 #
 # This function returns a value which is the proportion of datapoints that are inaccurately classified
 def calculate_binary_error(w, X, y):
-    errors = 0
-    if len(X) != len(y):
-        print('Length mismatch')
-        return None
-    for xi, yi in zip(X, y.flat):
-        xi = xi.reshape(-1, 1)
-        prob = sigmoid(w, xi)
-        prediction = 1 if prob > 0.5 else -1
-        if prediction != yi:
-            errors += 1
-    return errors/len(X)
+    dot_vec = np.dot(X, w)
+    probs = 1 / (1+np.exp(-1*dot_vec)) # This calculates the sigmoid on all samples in a vectorized manner
+    preds = np.where(probs > 0.5, 1, -1)
+    error = np.mean(preds.flatten() != y.flatten())
+    return error
+
 
 
 # This function computes the gradient of the cross-entropy error which is used to tell the model where to go next
