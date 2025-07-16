@@ -1,6 +1,5 @@
 import numpy as np # used to have vectorized operations that are very fast
 import pandas as pd # likely will be used for data matrix creation and manipulation
-from scipy.stats import zscore # will be used to normalize the input data which helps the algorithm converge
 from utils.format_data import format_data
 
 def organize_data(data):

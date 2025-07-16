@@ -3,6 +3,9 @@
 # Prisma_client
 /prisma_client
 
+#Instrument recognition training files
+/IRMAS-TrainingData
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
