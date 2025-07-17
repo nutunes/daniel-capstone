@@ -194,6 +194,7 @@ def logistic_reg(X, y, w_init, max_its=10**4, eta=3.5, terminating_condition=10*
 
 def run_k_fold_cross_validation_regression(data, num_folds=5, seed=1):
     train, test = train_test_split(data, seed=seed) # Take out 20% of data to be used for testing
+    print('made train test split')
 
     #Define hyperparameter values that you are going to optimize among
     etas = [0.01, 0.1, 1, 3, 4, 5]

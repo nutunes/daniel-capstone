@@ -3,11 +3,12 @@ import librosa
 import glob
 import os
 import re
+from regression.logistic_regression import run_k_fold_cross_validation_regression
 
 
 
 def create_data_matrix():
-    data_folder = '../IRMAS-TrainingData'
+    data_folder = 'IRMAS-TrainingData'
     instrument_folders = glob.glob(os.path.join(data_folder, '*/')) 
     instruments = ['cel', 'cla', 'flu', 'gac', 'gel', 'org', 'pia', 'sax', 'tru', 'vio', 'voi']
     # Dictionary mapping the instrument strings to their index in the instruments array
@@ -32,11 +33,26 @@ def create_data_matrix():
             mean_mfccs = np.mean(mfccs, axis=1)
             features.append(mean_mfccs)
     
-    return np.hstack([np.array(features), np.array(labels)])
+    return np.array(features), np.array(labels)
 
 
+def run_instrument_recognition():
+    features, labels = create_data_matrix()
+    w_matrix = []
+    means_matrix = []
+    stds_matrix = []
+    print('done creating data matrix')
+    for column in range(labels.shape[1]):
+        # instrument_label is the vector containing the labels for each point for a single instrument
+        instrument_labels = labels[:, column].reshape(-1, 1)
+        data = np.hstack((features, instrument_labels))
+        w, e_test, bin_e_test, means, stds = run_k_fold_cross_validation_regression(data)
+        print(f'test error: {e_test} bin error: {bin_e_test}')
+        w_matrix.append(w)
+        means_matrix.append(means)
+        stds_matrix.append(stds)
+        
 
 
 if __name__ == '__main__':
-    data = create_data_matrix()
-    print(data)
+    run_instrument_recognition()
