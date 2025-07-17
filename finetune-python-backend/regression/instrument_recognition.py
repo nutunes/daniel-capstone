@@ -26,7 +26,6 @@ def create_data_matrix():
             for inst in present_instruments:
                 label_vector[instrument_to_index[inst]] = 1
             labels.append(label_vector)
-            print(label_vector)
             # Now use librosa to get mfccs for each .wav file
             y, sr = librosa.load(track, sr=44100) # IRMAS sampled at 44.1kHz
             mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
