@@ -10,6 +10,8 @@ from regression.logistic_regression import run_user_regression, test_song
 MAX_ATTEMPTS = 20
 ODDS_THRESHOLD = 0.75
 PLAYLIST_LENGTH = 30
+instruments = ['cel', 'cla', 'flu', 'gac', 'gel', 'org', 'pia', 'sax', 'tru', 'vio', 'voi']
+
 
 prisma = Prisma()
 
@@ -130,7 +132,6 @@ async def will_i_like(user_id: str, song_id: str):
         if not song:
             raise Exception('failed to get song')
         mfccs = song.mfccs
-        
         odds = test_song(w, mfccs, means, stds)
         return odds
 
@@ -232,6 +233,31 @@ async def recommend_playlist(user_id: str):
     except Exception as e:
         print(f"failed to run recommended song route {e}")
         return None
+    
+
+@app.get("/add_instruments_to_song")
+async def song_instruments(song_id: str):
+    try:
+        song = await prisma.song.find_unique(
+            where={'id': song_id}
+        )
+        if not song:
+            raise Exception('failed to get song')
+        mfccs = song.mfccs
+        instrument_classification = await prisma.instrument_recognition.find_unique(
+            where={'name': 'instrument_recognition'}
+        )
+        weights_mat = instrument_classification.weights
+        means_mat = instrument_classification.means
+        stds_mat = instrument_classification.stds
+        instrument_odds = []
+        for w, means, stds in zip(weights_mat, means_mat, stds_mat):
+            instrument_odds.append(test_song(w, mfccs, means, stds))
+        print(instrument_odds)
+        
+    except Exception as e:
+        print(f'failed to add instruments to song: {e}')
+
 
 
 @app.get("/")

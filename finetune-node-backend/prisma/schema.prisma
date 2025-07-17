@@ -12,6 +12,15 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Instrument_Recognition {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  instruments String[]
+  weights     Json
+  means       Json
+  stds        Json
+}
+
 model User {
   id                  String   @id @default(uuid())
   username            String   @unique
@@ -37,6 +46,7 @@ model Song {
   recording_mbid String  @unique
   mfccs          Float[]
   isrc           String  @unique
+  instruments    Float[]
   recommendedTo  User[]  @relation("RecommendedSongs")
   dislikedBy     User[]  @relation("DislikedSongs")
   likedBy        User[]  @relation("LikedSongs")
