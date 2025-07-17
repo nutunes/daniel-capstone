@@ -4,16 +4,22 @@ import glob
 import os
 import re
 from regression.logistic_regression import run_k_fold_cross_validation_regression
+from prisma_client import Prisma
+import asyncio
+import json
 
+prisma = Prisma()
+
+
+instruments = ['cel', 'cla', 'flu', 'gac', 'gel', 'org', 'pia', 'sax', 'tru', 'vio', 'voi']
 
 
 def create_data_matrix():
     data_folder = 'IRMAS-TrainingData'
     instrument_folders = glob.glob(os.path.join(data_folder, '*/')) 
-    instruments = ['cel', 'cla', 'flu', 'gac', 'gel', 'org', 'pia', 'sax', 'tru', 'vio', 'voi']
+    
     # Dictionary mapping the instrument strings to their index in the instruments array
     instrument_to_index = {inst: i for i, inst in enumerate(instruments)}
-
     labels = []
     features = []
     for subdir in instrument_folders:
@@ -48,12 +54,32 @@ def run_instrument_recognition():
         data = np.hstack((features, instrument_labels))
         w, e_test, bin_e_test, means, stds = run_k_fold_cross_validation_regression(data)
         print(f'test error: {e_test} bin error: {bin_e_test}')
-        w_matrix.append(w)
-        means_matrix.append(means)
-        stds_matrix.append(stds)
+        print(f'w shape: {w.shape}')
+        w_matrix.append(w.flatten().tolist())
+        means_matrix.append(means.tolist())
+        stds_matrix.append(stds.tolist())
     return w_matrix, means_matrix, stds_matrix
-        
+
+
+async def upload_to_database():
+    w_matrix, means_matrix, stds_matrix = run_instrument_recognition()
+    # Convert to JSON directly
+    weights_json = json.dumps(w_matrix)
+    means_json = json.dumps(means_matrix)
+    stds_json = json.dumps(stds_matrix)
+    await prisma.connect()
+    await prisma.instrument_recognition.create(
+        data={
+            'name': 'instrument_recognition',
+            'instruments': instruments,
+            'weights': weights_json,
+            'means': means_json,
+            'stds': stds_json,
+        }
+    )
+    await prisma.disconnect()
+
 
 
 if __name__ == '__main__':
-    run_instrument_recognition()
+    asyncio.run(upload_to_database())
