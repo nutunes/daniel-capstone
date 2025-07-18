@@ -24,6 +24,14 @@ const checkIfInDatabase = async(spotify_id) => {
     return exists;
 }
 
+const checkIfUnavailable = async(spotify_id) => {
+    const song = await prisma.unavailable_Songs.findUnique({
+        where: {spotify_id}
+    })
+    const exists = song ? true : false;
+    return exists;
+}
+
 const addSongToDatabase = async(spotify_id, recording_mbid, isrc, title, album, mfccs) => {
     const song = await prisma.song.create({
         data: {
@@ -36,6 +44,15 @@ const addSongToDatabase = async(spotify_id, recording_mbid, isrc, title, album, 
         }
     });
     return song.id
+}
+
+const addSongToUnavailable = async(spotify_id) => {
+    const song = await prisma.unavailable_Songs.create({
+        data: {
+            spotify_id
+        }
+    })
+    return song.spotify_id
 }
 
 
@@ -64,7 +81,6 @@ const getMBID = async(ISRC) => {
         return MBID;
     } catch(error){
         console.error('failed to get mbid ' + error);
-        console.log(url);
     }
 }
 
@@ -97,6 +113,7 @@ const uploadSpotifyTrackToDatabase = async(track) => {
         const isrc = track.external_ids.isrc;
         const MBID = await getMBID(isrc)
         if (!MBID){
+            console.log('failed to get mbid')
             throw new Error('failed to get mbid');
         }
 
@@ -111,6 +128,7 @@ const uploadSpotifyTrackToDatabase = async(track) => {
 
     } catch(error){
         console.error('error uploading song to database' + error);
+        return null
     }
 }
 
@@ -205,6 +223,8 @@ const getRandomSpotifySong = async(retries=0) => {
             try {
                 const upload = await uploadSpotifyTrackToDatabase(song);
                 if (!upload){
+                    console.log('failed upload')
+                    await addSongToUnavailable(song.id)
                     throw new Error('failed upload');
                 }
                 return getDBSongFromSpotifyID(song.id);
@@ -222,4 +242,56 @@ const getRandomSpotifySong = async(retries=0) => {
 }
 
 
-module.exports =  { checkIfInDatabase, addSongToDatabase, getRandomSpotifySong }
+const seedDatabase = async() => {
+    try {
+        let token = await getClientCredentialsToken()
+        if (!token) {
+            throw new Error('failed to get token');
+        }
+        let terms = [...CommonWords, ...Letters]
+        for (let searchTerm of terms){
+            let url = `https://api.spotify.com/v1/search?q=${searchTerm}&type=track&limit=50`
+            while(url !== null){
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                });
+                if (response.status === 429){
+                    //ratelimiting - delay and then make exact same call again
+                    await delay(1000)
+                } else if (response.status === 401){
+                    //bad authorization, refresh token and then try again
+                    token = await getClientCredentialsToken()
+                } else if (!response.ok){
+                    throw new Error('spotify search fail')
+                } else {
+                    const responseJSON = await response.json()
+                    if (!responseJSON.tracks || !responseJSON.tracks.items){
+                        // response had no tracks, this is an error
+                        // Break and try next search term
+                        url = null;
+                    } else{
+                        const tracks = responseJSON.tracks.items
+                        for (let track of tracks) {
+                            const exists = await checkIfInDatabase(track.id)
+                            const unavailable = await checkIfUnavailable(track.id)
+                            if (!exists && !unavailable){
+                                const upload = await uploadSpotifyTrackToDatabase(track);
+                                if (!upload){
+                                    const unavailable = await addSongToUnavailable(track.id);
+                                }
+                            }
+                        }
+                        url = responseJSON.tracks.next
+                    }
+                }
+            }
+        }
+    } catch(error){
+        console.error('failed to seed database ' + error)
+    }
+}
+
+
+module.exports =  { checkIfInDatabase, checkIfUnavailable, addSongToDatabase, getRandomSpotifySong, seedDatabase }

@@ -21,6 +21,8 @@ model Instrument_Recognition {
   stds        Json
 }
 
+
+
 model User {
   id                  String   @id @default(uuid())
   username            String   @unique
@@ -50,4 +52,9 @@ model Song {
   recommendedTo  User[]  @relation("RecommendedSongs")
   dislikedBy     User[]  @relation("DislikedSongs")
   likedBy        User[]  @relation("LikedSongs")
+}
+
+
+model Unavailable_Songs {
+  spotify_id String @id
 }

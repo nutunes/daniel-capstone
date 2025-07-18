@@ -3,7 +3,7 @@ const router = express.Router()
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 const {isAuthenticated} = require('../middleware/auth')
-const { checkIfInDatabase, addSongToDatabase, getRandomSpotifySong } = require('../utils/spotifyUtils')
+const { checkIfInDatabase, checkIfUnavailable, addSongToDatabase, getRandomSpotifySong, seedDatabase } = require('../utils/spotifyUtils')
 
 
 //This route adds a refresh token to a user's profile
@@ -33,6 +33,15 @@ router.get('/exists', isAuthenticated, async(req, res)=>{
         return res.status(404).json({error: 'must query for a spotify id'});
     }
     res.json(await checkIfInDatabase(spotify_id))
+})
+
+//Check if a song has already been looked up
+router.get('/unavailable', isAuthenticated, async(req, res)=>{
+    const { spotify_id } = req.query;
+    if (!req.query){
+        return res.status(404).json({error: 'must query for sa spotify id'})
+    }
+    res.json(await checkIfUnavailable(spotify_id));
 })
 
 //Add a song to the database
@@ -104,6 +113,16 @@ router.get('/random_song', async(req, res)=>{
 })
 
 
+//Seed the database with tons of spotify songs
+router.get('/seed_database', async(req, res)=>{
+    try{
+        res.json(await seedDatabase())
+    } catch(error){
+        res.status(500).json({error: 'server error'})
+    }
+})
+
+
 //Check if a user's algorithm needs to update
 router.get('/reg_updated', isAuthenticated, async(req, res)=>{
     try {
@@ -116,6 +135,8 @@ router.get('/reg_updated', isAuthenticated, async(req, res)=>{
         res.status(500).json({error: 'server error'})
     }
 })
+
+
 
 
 //Get a user's recommended songs
