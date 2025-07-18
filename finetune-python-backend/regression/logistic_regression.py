@@ -1,8 +1,11 @@
 import numpy as np # used to have vectorized operations that are very fast
-import pandas as pd # likely will be used for data matrix creation and manipulation
+from concurrent.futures import ProcessPoolExecutor
 from utils.format_data import format_data
+import time
 
 
+# This function splits a data matrix into protions for training and testing by randomly shuffling the data points
+# and dividing them according to the desired ratio. The standard ratio is 80% training and 20% testing
 def train_test_split(data, ratio=0.8, seed=None):
     # If seed, the random number is the same across all runs with the same seed. This is for testing
     rng = np.random.default_rng(seed) 
@@ -191,8 +194,14 @@ def logistic_reg(X, y, w_init, max_its=10**4, eta=3.5, terminating_condition=10*
     return t, w, e_in
 
 
-
+# This function runs k-fold cross validation on the logistic regression. It goes through all combinations of hyperparameters
+# specified below, runs k-fold cross validation to estimate the out of sample error by splitting up the training data into 
+# 5 portions and training on 4 while validating on the fifth for each portion. It then calculates the average error across all 5
+# validated portions and records the hyperparameters that minimized it. Finally, once the ideal hyperparameters have been found it 
+# trains a model on the entire training data using these ideal hyperparameters, calculates the testing error using the test set, 
+# and reports this final weight vector and test error. 
 def run_k_fold_cross_validation_regression(data, num_folds=5, seed=None):
+    start_time = time.time()
     train, test = train_test_split(data, seed=seed) # Take out 20% of data to be used for testing
     print('made train test split')
 
@@ -208,24 +217,19 @@ def run_k_fold_cross_validation_regression(data, num_folds=5, seed=None):
     best_error = None
 
     folds = split_into_folds(train, num_folds=num_folds, seed=seed) # Split training data into folds
-    for eta in etas:
-        for terminating_condition in terminating_conditions:
-            for max_it in max_its:
-                # Once here you have a designated set of hyperparameters
-                # Now must run 5 fold cross validation on it
-                errors = []
-                for fold in folds:
-                    train_X, train_y, val_X, val_y = fold
-                    w_init = np.zeros((train_X.shape[1], 1))
-                    t, w, e_in = logistic_reg(X=train_X, y=train_y, w_init=w_init, max_its=max_it, eta=eta, terminating_condition=terminating_condition)
-                    e_val = find_test_error(w, val_X, val_y)
-                    errors.append(e_val)
-                avg_e_val = np.mean(errors)
-                if best_error is None or avg_e_val < best_error:
-                    best_eta = eta
-                    best_terminating_condition = terminating_condition
-                    best_max_its = max_it
-                    best_error = avg_e_val
+
+    #Define hyperparameter grid to pass to parallelization helper function
+    param_grid = [(eta, terminating_condition, max_it, folds) for eta in etas for terminating_condition in terminating_conditions for max_it in max_its]
+
+    with ProcessPoolExecutor() as executor:
+        results = list(executor.map(test_hyperparams, param_grid))
+    
+    for avg_e_val, eta, terminating_condition, max_it in results:
+        if best_error is None or avg_e_val < best_error:
+            best_eta = eta
+            best_terminating_condition = terminating_condition
+            best_max_its = max_it
+            best_error = avg_e_val
     
     # Once here, hyperparameters are ideal. Now run the model on the entire training set with these ideal
     # hyperparameters and then test using the reserved testing set. This is an unbiased estimator of the 
@@ -235,9 +239,25 @@ def run_k_fold_cross_validation_regression(data, num_folds=5, seed=None):
     t, w, e_in = logistic_reg(X=train_X, y=train_y, w_init=w_init, max_its=best_max_its, eta=best_eta, terminating_condition=best_terminating_condition)
     e_test = find_test_error(w, test_X, test_y)
     bin_e_test = calculate_binary_error(w, test_X, test_y)
+    end_time = time.time()
+    time_diff = end_time - start_time
+    print(time_diff)
     return w, e_test, bin_e_test, train_means, train_stds
 
 
+# This function runs k fold cross validation with a single set of hyperparameters. It returns the average error on each validation set. It is used so that
+# hyperparameter testing can run in parallel, greatly increasing algorithm efficiency.
+def test_hyperparams(params):
+    eta, terminating_condition, max_it, folds = params
+    errors = []
+    for fold in folds:
+        train_X, train_y, val_X, val_y = fold
+        w_init = np.zeros((train_X.shape[1], 1))
+        t, w, e_in = logistic_reg(X=train_X, y=train_y, w_init=w_init, max_its=max_it, eta=eta, terminating_condition=terminating_condition)
+        e_val = find_test_error(w, val_X, val_y)
+        errors.append(e_val)
+    avg_e_val = np.mean(errors)
+    return avg_e_val, eta, terminating_condition, max_it
 
 
 def run(data):

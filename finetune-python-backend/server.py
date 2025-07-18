@@ -236,7 +236,7 @@ async def recommend_playlist(user_id: str):
     
 
 @app.get("/add_instruments_to_song")
-async def song_instruments(song_id: str):
+async def add_instruments_to_song(song_id: str):
     try:
         song = await prisma.song.find_unique(
             where={'id': song_id}
@@ -253,8 +253,13 @@ async def song_instruments(song_id: str):
         instrument_odds = []
         for w, means, stds in zip(weights_mat, means_mat, stds_mat):
             instrument_odds.append(test_song(w, mfccs, means, stds))
-        print(instrument_odds)
-        
+        updated_song = await prisma.song.update(
+            where={'id': song_id},
+            data={
+                'instruments': instrument_odds,
+            }
+        )
+        return updated_song
     except Exception as e:
         print(f'failed to add instruments to song: {e}')
 
