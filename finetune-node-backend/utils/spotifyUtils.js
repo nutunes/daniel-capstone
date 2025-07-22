@@ -124,7 +124,9 @@ const uploadSpotifyTrackToDatabase = async(track) => {
         }
 
         //Then put it in the database
-        return await addSongToDatabase(track.id, MBID, isrc, track.name, track.album.name, mfccs);
+        console.log('uploading track to db')
+        add_id = await addSongToDatabase(track.id, MBID, isrc, track.name, track.album.name, mfccs);
+        return await fetch(`http://127.0.0.1:8000/add_instruments_to_song?song_id=${add_id}`)
 
     } catch(error){
         console.error('error uploading song to database' + error);
@@ -242,6 +244,15 @@ const getRandomSpotifySong = async(retries=0) => {
 }
 
 
+const shuffleArray = (arr) => {
+    for (let i = arr.length-1; i  > 0; i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [arr[i],arr[j]] = [arr[j],arr[i]];
+    }
+    return arr;
+}
+
+
 const seedDatabase = async() => {
     try {
         let token = await getClientCredentialsToken()
@@ -249,7 +260,9 @@ const seedDatabase = async() => {
             throw new Error('failed to get token');
         }
         let terms = [...CommonWords, ...Letters]
+        terms = shuffleArray(terms)
         for (let searchTerm of terms){
+            console.log(searchTerm)
             let url = `https://api.spotify.com/v1/search?q=${searchTerm}&type=track&limit=50`
             while(url !== null){
                 const response = await fetch(url, {
@@ -264,7 +277,10 @@ const seedDatabase = async() => {
                     //bad authorization, refresh token and then try again
                     token = await getClientCredentialsToken()
                 } else if (!response.ok){
-                    throw new Error('spotify search fail')
+                    // throw new Error('spotify search fail')
+                    // Try again please
+                    token = await getClientCredentialsToken()
+                    await delay(1000*60)
                 } else {
                     const responseJSON = await response.json()
                     if (!responseJSON.tracks || !responseJSON.tracks.items){
