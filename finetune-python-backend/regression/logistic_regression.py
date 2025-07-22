@@ -260,19 +260,12 @@ def test_hyperparams(params):
     return avg_e_val, eta, terminating_condition, max_it
 
 
-def run(data):
-    X, y, means, stds = organize_data(data)
-    # Initial weight vector is all zeroes of dimension the number of features plus bias
-    w_init = np.zeros((X.shape[1], 1))
-    t, w, e_in = logistic_reg(X, y, w_init)
-    print(f"iterations: {t} e_in: {e_in} binary error: {calculate_binary_error(w, X, y)}")
-    return w, e_in, means, stds
 
 
-def run_user_regression(user):
-    formatted_data = format_data(liked=user.likedSongs, disliked=user.dislikedSongs)
-    w, e_in, means, stds = run(formatted_data)
-    return w, e_in, means, stds
+async def run_user_regression(user):
+    formatted_data = await format_data(liked=user.likedSongs, disliked=user.dislikedSongs)
+    w, e_test, bin_e_test, means, stds = run_k_fold_cross_validation_regression(formatted_data)
+    return w, e_test, means, stds
 
 
 # This function takes a song (mfcc vector) and a user's algorithm (weight vector) and calculates
