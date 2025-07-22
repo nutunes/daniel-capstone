@@ -1,28 +1,41 @@
 import numpy as np
 import math
-from .spotify import get_random_song
+from prisma_client import Prisma
+import asyncio
+
+prisma = Prisma()
+
+
+async def get_random_songs(num_songs):
+    try:
+        await prisma.connect()    
+        query = f'''
+            Select * from "Song"
+            ORDER BY RANDOM()
+            LIMIT {num_songs}
+        '''
+        songs = await prisma.query_raw(query)
+        await prisma.disconnect()
+        return songs
+    except Exception as e:
+        print(f"failed to get random songs {e}")
+        return None
+
+
 
 def array_contains(target, song_list):
     return any(song.id == target["id"] for song in song_list)
 
 
-def format_data(liked, disliked):
+async def format_data(liked, disliked):
     # Augment the disliked songs with random samples if there aren't enough
     # Maintain a 5:1 ratio liked:disliked so that we don't overwhelm with random songs, if disliked exceeds this ratio
     # that is good
     num_disliked = len(disliked)
-    ratio = math.floor(len(liked)/5)
-    num_disliked_needed = ratio if ratio < 20 else 20
-    num_disliked_needed = num_disliked_needed if num_disliked_needed > 1 else 1
-    augmented_disliked = []
+    ratio = math.floor(len(liked)/2)
+    num_disliked_needed = ratio if ratio > 1 else 1
 
-    for _ in range(num_disliked_needed-num_disliked):
-        rand_song = get_random_song()
-        while array_contains(rand_song, liked) or array_contains(rand_song, disliked):
-            # Get a new random song if already in user's liked or disliked
-            rand_song = get_random_song()
-        augmented_disliked.append(rand_song)
-        print("added random song")
+    augmented_disliked = await get_random_songs(num_disliked_needed - num_disliked)
 
     np_liked = np.vstack([song.mfccs for song in liked])
     ones = np.ones((np_liked.shape[0], 1))
@@ -36,3 +49,8 @@ def format_data(liked, disliked):
 
     formatted_matrix = np.vstack((np_liked, np_disliked))
     return formatted_matrix
+
+
+
+if __name__ == "__main__":
+    print(asyncio.run(get_random_songs(1)))

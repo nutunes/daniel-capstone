@@ -120,7 +120,7 @@ async def will_i_like(user_id: str, song_id: str):
         if not user:
             raise Exception('failed to get user')
         if user.updateRegression:
-            w, e_in, means, stds = run_user_regression(user)
+            w, e_in, means, stds = await run_user_regression(user)
             user = await add_regression_to_user(user_id, w, means, stds)
         w = user.regressionWeights
         means = user.featureMeans
@@ -154,7 +154,7 @@ async def recommend_song(user_id: str):
         if not user:
             raise Exception('failed to get user')
         if user.updateRegression:
-            w, e_in, means, stds = run_user_regression(user)
+            w, e_in, means, stds = await run_user_regression(user)
             user = await add_regression_to_user(user_id, w, means, stds)
         w = user.regressionWeights
         means = user.featureMeans
@@ -198,7 +198,7 @@ async def recommend_playlist(user_id: str):
         if not user:
             raise Exception('failed to get user')
         if user.updateRegression:
-            w, e_in, means, stds = run_user_regression(user)
+            w, e_in, means, stds = await run_user_regression(user)
             user = await add_regression_to_user(user_id, w, means, stds)
         w = user.regressionWeights
         means = user.featureMeans
