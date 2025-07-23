@@ -23,20 +23,22 @@ model Instrument_Recognition {
 }
 
 model User {
-  id                  String   @id @default(uuid())
-  username            String   @unique
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  id                  String         @id @default(uuid())
+  username            String         @unique
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
   hashedPassword      String
   displayName         String?
   spotifyRefreshToken String?
-  updateRegression    Boolean  @default(true)
+  updateRegression    Boolean        @default(true)
   regressionWeights   Float[]
   featureMeans        Float[]
   featureStds         Float[]
-  recommendedSongs    Song[]   @relation("RecommendedSongs")
-  dislikedSongs       Song[]   @relation("DislikedSongs")
-  likedSongs          Song[]   @relation("LikedSongs")
+  recommendedSongs    Song[]         @relation("RecommendedSongs")
+  dislikedSongs       Song[]         @relation("DislikedSongs")
+  likedSongs          Song[]         @relation("LikedSongs")
+  notifications       Notification[] @relation("UserNotifications")
+  recentSongIds       String[]
 }
 
 model Song {
@@ -55,4 +57,13 @@ model Song {
 
 model Unavailable_Songs {
   spotify_id String @id
+}
+
+model Notification {
+  id          String  @id @default(uuid())
+  subject     String
+  content     String
+  userId      String
+  read        Boolean
+  destination User    @relation("UserNotifications", fields: [userId], references: [id])
 }

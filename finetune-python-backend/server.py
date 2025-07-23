@@ -88,13 +88,18 @@ async def get_songs_not_in_list(ignore):
 
 async def add_recommended_to_user(user_id, recommended):
     try:
+        current_user = await prisma.user.find_unique(
+            where={'id': user_id},
+        )
         rec_ids = [song['id'] for song in recommended]
+        updated_recent_ids = current_user.recentSongIds + rec_ids
         updated_user = await prisma.user.update(
             where={"id": user_id},
             data={
                 "recommendedSongs": {
                     "connect": [{"id": rec_id} for rec_id in rec_ids]
-                }
+                },
+                "recentSongIds": updated_recent_ids
             }
         )
         return updated_user
