@@ -6,6 +6,7 @@ const PORT = process.env.PORT || 3000
 const loginRoutes = require('./routes/loginRoutes')
 const spotifyRoutes = require('./routes/spotifyRoutes')
 const session = require('express-session')
+const { createNotification, dailyNotification } = require('./utils/notificationUtils')
 
 allowedOrigins = [
     'http://127.0.0.1:5173',
@@ -44,6 +45,16 @@ app.use(session({
 app.use('/login', loginRoutes)
 app.use('/spotify', spotifyRoutes)
 
+//This route sends a test notification to a user to verify the createNotification functionality
+app.get('/notification_test', async(req, res)=>{
+    try{
+        const notif = await dailyNotification('2ca24dc2-7f1d-48be-a855-485041cf0e95');
+        res.json(notif)
+        
+    } catch(error){
+        res.status(500).json({error: 'server error'})
+    }
+})
 
 app.get('/', (req, res)=>{
     res.send("welcome to finetune");
