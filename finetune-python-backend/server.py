@@ -104,6 +104,26 @@ async def add_recommended_to_user(user_id, recommended):
         return None
 
 
+async def update_instrument_averages(instrument_values):
+    try:
+        current_averages = await prisma.instrument_recognition.find_unique(
+            where={
+                'name': 'instrument_recognition'
+            }
+        ).instrument_average_values
+        num_songs = await prisma.song.count()
+        new_averages = ((current_averages[i]*(num_songs-1)+instrument_values[i])/num_songs for i in range(len(instrument_values)))
+        updated_averages = await prisma.instrument_recognition.update(
+            where={
+                'name': 'instrument_recognition'
+            },
+            data={
+                'instrument_average_values': new_averages,
+            }
+        )
+    except Exception as e:
+        print(f"Failed to update instrument averages {e}")
+
 
 # Routes
 @app.get("/will_i_like")
@@ -259,9 +279,13 @@ async def add_instruments_to_song(song_id: str):
                 'instruments': instrument_odds,
             }
         )
+        update_instrument_averages(instrument_odds)
         return updated_song
     except Exception as e:
         print(f'failed to add instruments to song: {e}')
+
+
+
 
 
 

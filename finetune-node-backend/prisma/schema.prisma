@@ -13,15 +13,14 @@ datasource db {
 }
 
 model Instrument_Recognition {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
-  instruments String[]
-  weights     Json
-  means       Json
-  stds        Json
+  id                        Int      @id @default(autoincrement())
+  name                      String   @unique
+  instruments               String[]
+  weights                   Json
+  means                     Json
+  stds                      Json
+  instrument_average_values Float[]
 }
-
-
 
 model User {
   id                  String   @id @default(uuid())
@@ -53,7 +52,6 @@ model Song {
   dislikedBy     User[]  @relation("DislikedSongs")
   likedBy        User[]  @relation("LikedSongs")
 }
-
 
 model Unavailable_Songs {
   spotify_id String @id

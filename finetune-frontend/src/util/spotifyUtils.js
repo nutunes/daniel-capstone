@@ -101,7 +101,8 @@ const uploadToDatabase = async(track) => {
         if (!response.ok){
             throw new Error('failed to upload song to database');
         }
-        return await response.json();
+        const add_id = await response.json()
+        return await fetch(`http://127.0.0.1:8000/add_instruments_to_song?song_id=${add_id}`);
     } catch(error){
         console.error('error uploading song to database' + error);
     }

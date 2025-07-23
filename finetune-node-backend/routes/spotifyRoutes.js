@@ -3,7 +3,7 @@ const router = express.Router()
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 const {isAuthenticated} = require('../middleware/auth')
-const { checkIfInDatabase, checkIfUnavailable, addSongToDatabase, getRandomSpotifySong, seedDatabase } = require('../utils/spotifyUtils')
+const { checkIfInDatabase, checkIfUnavailable, addSongToDatabase, getRandomSpotifySong, seedDatabase, calculateInstrumentAverages } = require('../utils/spotifyUtils')
 
 
 //This route adds a refresh token to a user's profile
@@ -158,7 +158,47 @@ router.get('/songs_for_feedback', isAuthenticated, async(req, res)=>{
         });
         res.json(songs)
     } catch(error){
-        console.error(error);
+        res.status(500).json({error: 'server error'})
+    }
+})
+
+
+//Update the average instrument values for every song in the database
+router.patch('/reset_instrument_averages', async(req, res)=>{
+    try {
+        console.log('resetting')
+        const avgs = await calculateInstrumentAverages()
+        const updated_instrument_recognition = await prisma.instrument_Recognition.update({
+            where: {name: 'instrument_recognition'},
+            data: {
+                instrument_average_values: avgs,
+            },
+        });
+        res.json(avgs)
+
+    } catch(error){
+        res.status(500).json({error: 'server error'})
+    }
+})
+
+
+
+router.delete('/songs_no_instruments', async(req, res)=>{
+    try {
+        const allSongs = await prisma.song.findMany()
+        const badSongs = allSongs.filter(song => song.instruments.length === 0)
+        const badSongIds = badSongs.map(song => song.id)
+
+        const deleted = await prisma.song.deleteMany({
+            where: {
+                id: {
+                    in: badSongIds
+                }
+            }
+        })
+        res.json({numDeleted: deleted.count})
+    } catch(error){
+        res.status(500).json({error: 'server error'})
     }
 })
 

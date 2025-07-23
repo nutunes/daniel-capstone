@@ -309,5 +309,35 @@ const seedDatabase = async() => {
     }
 }
 
+// This function calculates the averages of the instrument presences over every song in the database and adds it to the Instrument Recognition model
+const calculateInstrumentAverages = async() => {
+    try {
+        const songs = await prisma.song.findMany()
 
-module.exports =  { checkIfInDatabase, checkIfUnavailable, addSongToDatabase, getRandomSpotifySong, seedDatabase }
+        if (songs.length === 0){
+            return []
+        }
+        
+        const length = songs[0].instruments.length
+        const sums = new Array(length).fill(0)
+
+        for (let song of songs){
+            for (let i = 0; i < length; i++){
+                sums[i] += song.instruments[i]
+            }
+        }
+
+        const avgs = sums.map(sum => sum / songs.length)
+        console.log(sums)
+        return avgs
+
+
+    } catch(error) {
+        console.error('failed to get instrument averages ' + error)
+    }
+}
+
+
+
+
+module.exports =  { checkIfInDatabase, checkIfUnavailable, addSongToDatabase, getRandomSpotifySong, seedDatabase, calculateInstrumentAverages }

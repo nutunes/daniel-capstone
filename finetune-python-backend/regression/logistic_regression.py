@@ -261,7 +261,7 @@ def test_hyperparams(params):
 
 
 
-
+# This function is used to update a user's regression algorithm for song recommendation
 async def run_user_regression(user):
     formatted_data = await format_data(liked=user.likedSongs, disliked=user.dislikedSongs)
     w, e_test, bin_e_test, means, stds = run_k_fold_cross_validation_regression(formatted_data)
