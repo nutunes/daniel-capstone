@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -31,6 +31,24 @@ const RecommendSong = () => {
     const [vio, setVio] = useState(1);
     const [voi, setVoi] = useState(1);
     const { user } = useAuth();
+
+    const resetInstruments = () => {
+        setCel(1);
+        setCla(1);
+        setFlu(1);
+        setGac(1);
+        setGel(1);
+        setOrg(1);
+        setPia(1);
+        setSax(1);
+        setTru(1);
+        setVio(1);
+        setVoi(1);
+    }
+
+    useEffect(()=>{
+        resetInstruments()
+    }, [customizeMenu])
 
 
     const handleAddSong = async(like) => {
