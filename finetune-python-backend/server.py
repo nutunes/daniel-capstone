@@ -7,7 +7,7 @@ from itertools import chain
 
 from regression.logistic_regression import run_user_regression, test_song
 
-MAX_ATTEMPTS = 20
+MAX_ATTEMPTS = 750
 ODDS_THRESHOLD = 0.75
 PLAYLIST_LENGTH = 30
 instruments = ['cel', 'cla', 'flu', 'gac', 'gel', 'org', 'pia', 'sax', 'tru', 'vio', 'voi']
@@ -106,11 +106,12 @@ async def add_recommended_to_user(user_id, recommended):
 
 async def update_instrument_averages(instrument_values):
     try:
-        current_averages = await prisma.instrument_recognition.find_unique(
+        recognition = await prisma.instrument_recognition.find_unique(
             where={
                 'name': 'instrument_recognition'
             }
-        ).instrument_average_values
+        )
+        current_averages = recognition.instrument_average_values
         num_songs = await prisma.song.count()
         new_averages = ((current_averages[i]*(num_songs-1)+instrument_values[i])/num_songs for i in range(len(instrument_values)))
         updated_averages = await prisma.instrument_recognition.update(
@@ -161,7 +162,7 @@ async def will_i_like(user_id: str, song_id: str):
     
     
 @app.get("/recommend_song")
-async def recommend_song(user_id: str):
+async def recommend_song(user_id: str, cel: int, cla: int, flu: int, gac: int, gel: int, org: int, pia: int, sax: int, tru: int, vio: int, voi: int):
     try:
         user = await prisma.user.find_unique(
             where={"id": user_id},
@@ -179,6 +180,13 @@ async def recommend_song(user_id: str):
         w = user.regressionWeights
         means = user.featureMeans
         stds = user.featureStds
+
+        desired_instruments = [cel, cla, flu, gac, gel, org, pia, sax, tru, vio, voi]
+        recognition = await prisma.instrument_recognition.find_unique(
+            where={'name': 'instrument_recognition'}
+        )
+        avg_instrument_values = recognition.instrument_average_values
+        print(avg_instrument_values)
         
         # Make empty lists if doesn't exist so they can be chained together
         prev_recommended = user.recommendedSongs or []
@@ -188,14 +196,30 @@ async def recommend_song(user_id: str):
         # Construct a list of all songs to ignore when retrieving a song
         used = [song.id for song in chain(prev_recommended, liked, disliked)]
         for _ in range(MAX_ATTEMPTS):
+            print('got new songs')
             rand_songs = await get_songs_not_in_list(used)
             for song in rand_songs:
                 mfccs = song['mfccs']
                 odds = test_song(w, mfccs, means, stds)
                 if odds > ODDS_THRESHOLD:
-                    print(odds)
-                    await add_recommended_to_user(user_id, [song])
-                    return song
+                    song_instruments = song['instruments']
+                    good_song = True
+                    for i, val in enumerate(desired_instruments):
+                        if val == 0:
+                            # Want less of this instrument
+                            if song_instruments[i] >= avg_instrument_values[i]:
+                                print('too much')
+                                good_song = False
+                        elif val == 2:
+                            # Want more of this instrument
+                            if song_instruments[i] <= avg_instrument_values[i]:
+                                print('not enough')
+                                good_song = False
+                    if good_song:
+                        print(odds)
+                        await add_recommended_to_user(user_id, [song])
+                        return song
+
         return None
     
     
@@ -279,7 +303,7 @@ async def add_instruments_to_song(song_id: str):
                 'instruments': instrument_odds,
             }
         )
-        update_instrument_averages(instrument_odds)
+        await update_instrument_averages(instrument_odds)
         return updated_song
     except Exception as e:
         print(f'failed to add instruments to song: {e}')
