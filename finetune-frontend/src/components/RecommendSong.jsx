@@ -14,6 +14,7 @@ import { ThumbsUp, ThumbsDown } from "lucide-react";
 import { useAuth } from "./AuthProvider";
 
 import { addSongToUser } from "@/util/spotifyUtils";
+import InstrumentAmountSelector from "./InstrumentAmountSelector";
 
 const RecommendSong = () => {
     const [recSpotifyId, setRecSpotifyId] = useState(null);
@@ -55,13 +56,19 @@ const RecommendSong = () => {
         if (needUpdate){
             toast('You have recently updated your liked/disliked songs so your algorithm needs to refresh. Please wait briefly.')
         }
-        const response = await fetch(`http://127.0.0.1:8000/recommend_song?user_id=${user}`);
+        const response = await fetch(`http://127.0.0.1:8000/recommend_song?user_id=${user}&cel=${cel}&cla=${cla}&flu=${flu}&gac=${gac}&gel=${gel}&org=${org}&pia=${pia}&sax=${sax}&tru=${tru}&vio=${vio}&voi=${voi}`);
         const song = await response.json()
+        if (song === null){
+            toast('There are no songs in the database that fit your music taste and instrument desires :(')
+        }
         setRecSpotifyId(song.spotify_id)
     }
 
     return (
-        <Dialog onOpenChange={()=>setRecSpotifyId(null)}>
+        <Dialog onOpenChange={()=>{
+            setRecSpotifyId(null);
+            setCustomizeMenu(false);
+        }}>
             <DialogTrigger asChild>
                 <Button variant='outline' size='lg'
                     className='text-red !border-red hover:text-background hover:!bg-red focus:scale-105 
@@ -77,19 +84,29 @@ const RecommendSong = () => {
                         Get a new song that FineTune knows you will like! This will only give you a song with a greater than 75% chance of you liking it.
                     </DialogDescription>
                 </DialogHeader>
-                <div className='flex flex-row gap-2 justify-center'>
-                    {!recSpotifyId && <div className='flex flex-row gap-2'>
+                <div className='flex flex-col gap-2 justify-center items-center flex-1'>
+                    {!recSpotifyId && <div className='flex flex-row gap-2 flex-1'>
                         <Button variant='outline' size='lg'
                         className='text-orange !border-orange hover:text-background hover:!bg-orange
-                        focus:scale-105 active:scale-105 p-3 border-2'
+                        focus:scale-105 active:scale-105 p-3 border-2 flex-1'
                         onClick={handleGetRecommendation}>Give me a song!</Button>
                         <Button variant='outline' size='lg'
                         className='text-indigo !border-indigo hover:text-background hover:!bg-indigo
-                        focus:scale-105 active:scale-105 p-3 border-2'
+                        focus:scale-105 active:scale-105 p-3 border-2 flex-1'
                         onClick={()=>setCustomizeMenu((prev)=>!prev)}>Customize</Button>
                         </div>}
-                    {customizeMenu && <div>
-
+                    {!recSpotifyId && customizeMenu && <div className='flex flex-col items-center'>
+                        <InstrumentAmountSelector instrument='Cello' setInstrumentAmount={setCel} />
+                        <InstrumentAmountSelector instrument='Clarinet' setInstrumentAmount={setCla} />
+                        <InstrumentAmountSelector instrument='Flute' setInstrumentAmount={setFlu} />
+                        <InstrumentAmountSelector instrument='Acoustic Guitar' setInstrumentAmount={setGac} />
+                        <InstrumentAmountSelector instrument='Electric Guitar' setInstrumentAmount={setGel} />
+                        <InstrumentAmountSelector instrument='Organ' setInstrumentAmount={setOrg} />
+                        <InstrumentAmountSelector instrument='Piano' setInstrumentAmount={setPia} />
+                        <InstrumentAmountSelector instrument='Saxophone' setInstrumentAmount={setSax} />
+                        <InstrumentAmountSelector instrument='Trumpet' setInstrumentAmount={setTru} />
+                        <InstrumentAmountSelector instrument='Violin' setInstrumentAmount={setVio} />
+                        <InstrumentAmountSelector instrument='Human Singing Voice' setInstrumentAmount={setVoi} />
                         </div>}
                     {recSpotifyId && <div className='flex flex-col w-full'>
                         <iframe data-testid="embed-iframe" className='rounded-lg' 
