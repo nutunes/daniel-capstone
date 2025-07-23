@@ -114,7 +114,7 @@ const RecommendSong = () => {
                         onClick={()=>setCustomizeMenu((prev)=>!prev)}>Customize</Button>
                         </div>}
                     {!recSpotifyId && customizeMenu && <div className='flex flex-col items-center'>
-                        <p className='font-fredoka text-sm'>Specify wanting more or less of each instrument's sound! Please note that instrument detection is created through Machine Learning and as such does not detect each actual instrument, just the overall shape of an instrument's song. FineTune thinks this will help you find new, fun songs!</p>
+                        {/* <p className='font-fredoka text-sm p-2'>Specify wanting more or less of each instrument's sound! Please note that instrument detection is created through Machine Learning and as such does not detect each actual instrument, just the overall shape of an instrument's sound. FineTune thinks this will help you find new, fun songs!</p> */}
                         <InstrumentAmountSelector instrument='Cello' setInstrumentAmount={setCel} />
                         <InstrumentAmountSelector instrument='Clarinet' setInstrumentAmount={setCla} />
                         <InstrumentAmountSelector instrument='Flute' setInstrumentAmount={setFlu} />
