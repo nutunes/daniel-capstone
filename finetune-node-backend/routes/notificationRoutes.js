@@ -3,7 +3,25 @@ const router = express.Router()
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 const {isAuthenticated} = require('../middleware/auth')
+const { dailyNotification, createNotification } = require('../utils/notificationUtils')
 
+
+// Set a notification to be opened
+router.patch('/open', isAuthenticated, async(req, res)=>{
+    const { notification_id } = req.query;
+    if (!notification_id){
+        return res.status(404).json({error: 'must include a notification id'})
+    }
+    const updatedNotification = await prisma.notification.update({
+        where: {
+            id: notification_id,
+        },
+        data: {
+            read: true,
+        }
+    });
+    res.json(updatedNotification)
+})
 
 // This route gets a user's notifications
 router.get('/', isAuthenticated, async(req, res)=>{
@@ -14,8 +32,12 @@ router.get('/', isAuthenticated, async(req, res)=>{
                 id: userId,
             },
             select: {
-                notifications: true,
-            }
+                notifications: {
+                    orderBy: {
+                        createdAt: 'desc',
+                    }
+                }
+            },
         })
         res.json(notifs.notifications)
     } catch (error){
@@ -34,5 +56,7 @@ router.get('/test', async(req, res)=>{
         res.status(500).json({error: 'server error'})
     }
 })
+
+
 
 module.exports = router
