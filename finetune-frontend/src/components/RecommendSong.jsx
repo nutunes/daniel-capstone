@@ -17,6 +17,18 @@ import { addSongToUser } from "@/util/spotifyUtils";
 
 const RecommendSong = () => {
     const [recSpotifyId, setRecSpotifyId] = useState(null);
+    const [customizeMenu, setCustomizeMenu] = useState(false);
+    const [cel, setCel] = useState(1);
+    const [cla, setCla] = useState(1);
+    const [flu, setFlu] = useState(1);
+    const [gac, setGac] = useState(1);
+    const [gel, setGel] = useState(1);
+    const [org, setOrg] = useState(1);
+    const [pia, setPia] = useState(1);
+    const [sax, setSax] = useState(1);
+    const [tru, setTru] = useState(1);
+    const [vio, setVio] = useState(1);
+    const [voi, setVoi] = useState(1);
     const { user } = useAuth();
 
 
@@ -66,10 +78,19 @@ const RecommendSong = () => {
                     </DialogDescription>
                 </DialogHeader>
                 <div className='flex flex-row gap-2 justify-center'>
-                    {!recSpotifyId && <Button variant='outline' size='lg'
+                    {!recSpotifyId && <div className='flex flex-row gap-2'>
+                        <Button variant='outline' size='lg'
                         className='text-orange !border-orange hover:text-background hover:!bg-orange
                         focus:scale-105 active:scale-105 p-3 border-2'
-                        onClick={handleGetRecommendation}>Give me a song!</Button>}
+                        onClick={handleGetRecommendation}>Give me a song!</Button>
+                        <Button variant='outline' size='lg'
+                        className='text-indigo !border-indigo hover:text-background hover:!bg-indigo
+                        focus:scale-105 active:scale-105 p-3 border-2'
+                        onClick={()=>setCustomizeMenu((prev)=>!prev)}>Customize</Button>
+                        </div>}
+                    {customizeMenu && <div>
+
+                        </div>}
                     {recSpotifyId && <div className='flex flex-col w-full'>
                         <iframe data-testid="embed-iframe" className='rounded-lg' 
                         src={`https://open.spotify.com/embed/track/${recSpotifyId}?utm_source=generator`} 
