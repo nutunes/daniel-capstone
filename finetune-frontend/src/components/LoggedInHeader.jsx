@@ -31,7 +31,7 @@ const LoggedInHeader = ({page}) => {
             <Button variant='outline' size='icon'
                 className='absolute top-0 left-10 h-[50px] w-[50px] flex items-center justify-center
                     text-foreground !border-foreground hover:text-background hover:!bg-foreground
-                    focus: scale-105 active:scale-105 p-2 border-2'
+                    focus:scale-105 active:scale-105 p-2 border-2'
                 onClick={()=>page==='Friends'? navigate('/home') : navigate('/friends')}>
                 {page==='Friends'
                     ? <House className='!w-full !h-full' />

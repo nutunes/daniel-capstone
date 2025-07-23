@@ -10,7 +10,7 @@ const { dailyNotification, createNotification } = require('../utils/notification
 router.patch('/open', isAuthenticated, async(req, res)=>{
     const { notification_id } = req.query;
     if (!notification_id){
-        return res.status(404).json({error: 'must include a notification id'})
+        return res.status(404).json({error: 'must include a notification id to open'})
     }
     const updatedNotification = await prisma.notification.update({
         where: {
@@ -22,6 +22,22 @@ router.patch('/open', isAuthenticated, async(req, res)=>{
     });
     res.json(updatedNotification)
 })
+
+//Delete a notification
+router.delete('/', isAuthenticated, async(req, res)=>{
+    const { notification_id } = req.query;
+    if (!notification_id){
+        return res.status(404).json({error: 'must include a notification id to delete'})
+    }
+    const deletedNotification = await prisma.notification.delete({
+        where: {
+            id: notification_id,
+        }
+    })
+    res.json(deletedNotification.id)
+})
+
+
 
 // This route gets a user's notifications
 router.get('/', isAuthenticated, async(req, res)=>{
@@ -44,6 +60,9 @@ router.get('/', isAuthenticated, async(req, res)=>{
         res.status(500).json({error: 'server error'})
     }
 })
+
+
+
 
 
 // This route sends a daily notification to ensure that it works

@@ -10,14 +10,14 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { Button } from "./ui/button"
-import { Bell } from "lucide-react"
+import { Bell, CircleAlert } from "lucide-react"
 import { useAuth } from "./AuthProvider"
 import NotificationElement from './NotificationElement'
 
 const NotificationsMenu = () => {
     const { user } = useAuth()
     const [notifications, setNotifications] = useState(null)
-    const [updated, setUpdated] = useState('')
+    const [unread, setUnread] = useState(null)
 
     const fetchNotifications = async() => {
         try{
@@ -28,16 +28,28 @@ const NotificationsMenu = () => {
                 throw new Error('failed to get recommended songs')
             }
             const notifs = await response.json()
-            console.log(notifs)
             setNotifications(notifs);
         } catch(error){
             console.error('failed to fetch notifications ' + error)
         }
     }
 
+
     useEffect(()=>{
         fetchNotifications()
-    }, [updated])
+    },[])
+
+    useEffect(()=>{
+        if (notifications){
+            for (let notif of notifications){
+                if (notif.read === false){
+                    setUnread(true);
+                    return;
+                }
+            }
+            setUnread(false);
+        }
+    }, [notifications])
 
 
     return (
@@ -46,8 +58,9 @@ const NotificationsMenu = () => {
                 <Button variant="outline" size='icon'
                     className='h-[50px] w-[50px] flex items-center justify-center
                         text-foreground !border-foreground hover:text-background hover:!bg-foreground
-                        focus: scale-105 active:scale-105 p-2 border-2'
-                    ><Bell className='!w-full !h-full'/></Button>
+                        focus:scale-105 active:scale-105 p-2 border-2'>
+                        {unread ? <p className='font-fredoka text-3xl text-orange'>!!</p> : <Bell className='!w-full !h-full'/>}
+                        </Button>
             </SheetTrigger>
             <SheetContent className='flex flex-col items-center '>
                 <SheetHeader>
@@ -64,10 +77,10 @@ const NotificationsMenu = () => {
                         <p className='font-fredoka'>You have no notifications!</p>
                     }
                     {notifications?.length > 0 && 
-                        <div className='flex flex-col gap-3'>
+                        <div className='flex flex-col gap-3 w-full'>
                             {notifications.map(notification => {
                                 return(
-                                    <NotificationElement notification={notification} key={notification.id} updated={setUpdated}/>
+                                    <NotificationElement notification={notification} key={notification.id} updated={fetchNotifications}/>
                                 )
                             })}
                         </div>}
