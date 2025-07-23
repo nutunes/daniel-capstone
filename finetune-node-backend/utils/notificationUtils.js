@@ -45,14 +45,14 @@ const dailyNotification = async(userId) => {
     })
 
     //Now reset recently recommended so that they are fresh for the next week
-    // const updatedUser = await prisma.user.update({
-    //     where: {
-    //         id: userId,
-    //     },
-    //     data: {
-    //         recentSongIds: [],
-    //     }
-    // })
+    const updatedUser = await prisma.user.update({
+        where: {
+            id: userId,
+        },
+        data: {
+            recentSongIds: [],
+        }
+    })
 
     const likedInstrumentSums = new Array(instruments.length).fill(0)
     for (let song of likedSongs){
