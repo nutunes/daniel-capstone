@@ -12,7 +12,7 @@ import {
 const InstrumentAmountSelector = ({setInstrumentAmount, instrument}) => {
 
     return (
-        <div className='flex flex-col gap-2 items-center'>
+        <div className='flex flex-row gap-2 items-center'>
             <p className='font-fredoka text-md'>{instrument}</p>
             <Select defaultValue={1} onValueChange={(value)=>setInstrumentAmount(value)}>
                 <SelectTrigger className="w-[180px]">
