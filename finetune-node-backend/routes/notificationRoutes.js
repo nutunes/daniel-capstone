@@ -3,7 +3,7 @@ const router = express.Router()
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 const {isAuthenticated} = require('../middleware/auth')
-const { dailyNotification, createNotification } = require('../utils/notificationUtils')
+const { weeklyNotification, createNotification } = require('../utils/notificationUtils')
 
 
 // Set a notification to be opened
@@ -68,7 +68,7 @@ router.get('/', isAuthenticated, async(req, res)=>{
 // This route sends a daily notification to ensure that it works
 router.get('/test', async(req, res)=>{
     try{
-        const notif = await dailyNotification('2ca24dc2-7f1d-48be-a855-485041cf0e95');
+        const notif = await weeklyNotification('2ca24dc2-7f1d-48be-a855-485041cf0e95');
         res.json(notif)
         
     } catch(error){

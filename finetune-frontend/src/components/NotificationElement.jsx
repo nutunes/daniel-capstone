@@ -8,7 +8,7 @@ const NotificationElement = ({notification, updated}) => {
     const [open, setOpen] = useState(false);
     const [read, setRead] = useState(notification.read)
     const subject = notification.subject;
-    const content = notification.content;
+    const content = notification.content
 
 
     const handleRead = async() => {
@@ -75,7 +75,11 @@ const NotificationElement = ({notification, updated}) => {
                 </div>
             </div>
             {open && <div className='flex flex-row'>
-                <p className='text-sm text-muted-foreground'>{content}</p>
+                <div className='flex flex-col text-sm text-muted-foreground'>
+                    {content.split('\n').map((line, idx) => (
+                        <p key={idx}>{line}</p>
+                    ))}
+                </div>
             </div>}
         </div>
     )

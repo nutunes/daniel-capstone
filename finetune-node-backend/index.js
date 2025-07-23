@@ -7,7 +7,7 @@ const loginRoutes = require('./routes/loginRoutes')
 const spotifyRoutes = require('./routes/spotifyRoutes')
 const notificationRoutes = require('./routes/notificationRoutes')
 const session = require('express-session')
-const { createNotification, dailyNotification } = require('./utils/notificationUtils')
+const { createNotification, weeklyNotification } = require('./utils/notificationUtils')
 
 allowedOrigins = [
     'http://127.0.0.1:5173',

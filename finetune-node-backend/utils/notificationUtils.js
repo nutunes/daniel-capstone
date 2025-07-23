@@ -22,8 +22,17 @@ const createNotification = async(subject, content, userId) => {
     return notification.id;
 }
 
+const getDateMMDDYYYY = () => {
+    const today = new Date();
+    const dd = String(today.getDate()).padStart(2, '0');
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const yyyy = today.getFullYear();
+    return `${mm}/${dd}/${yyyy}`
+}
 
-const dailyNotification = async(userId) => {
+
+// This function is the weekly update notification that will be sent to users each Monday
+const weeklyNotification = async(userId) => {
     const user = await prisma.user.findUnique({
         where: {
             id: userId
@@ -73,9 +82,17 @@ const dailyNotification = async(userId) => {
     const recommendedInstrumentAvgs = recommendedInstrumentSums.map(sum => sum/recommendedSongs.length)
 
     const instrumentDiffs = new Array(instruments.length).fill(0)
-
+    let instrumentInfo = ``
     for (let i = 0; i < instruments.length; i++){
         instrumentDiffs[i] = likedInstrumentAvgs[i] - recommendedInstrumentAvgs[i];
+        if (instrumentDiffs[i] < 0){
+            instrumentInfo += ` - Less ${instruments[i]} than your liked songs\n`
+        } else if (instrumentDiffs[i] > 0){
+            instrumentInfo += ` - More ${instruments[i]} than your liked songs\n`
+        }
+        else if (instrumentDiffs[i] === 0){
+            instrumentInfo += ` - The same ${instruments[i]} as your liked songs\n`
+        }
     }
 
     //instrumentDiffs holds the differences between your liked instrument averages and your recently recommended
@@ -87,20 +104,12 @@ const dailyNotification = async(userId) => {
     const greatestDiff = instrumentDiffs[greatestDiffIndex]
 
     //Create the notification
-    const subject = 'Weekly Update';
-    let content = '';
-    if (greatestDiff > 0){
-        content = `Your recommendations from the past week have had more ${greatestDiffInstrument} than any other instrument in your liked songs!
-        Like the recommendations? Go review them positively in the Profile page! Hate them? Go dislike them! All feedback
-        you give makes the algorithm more accurate and tailored to you!`
-    } else{
-        content = `Your recommendations from the past week have had less ${greatestDiffInstrument} than any other instrument in your liked songs!
-        Like the recommendations? Go review them positively in the Profile page! Hate them? Go dislike them! All feedback
-        you give makes the algorithm more accurate and tailored to you!`
-    }
+    const today = getDateMMDDYYYY();
+    const subject = 'Weekly Update ' + today;
+    let content = 'On average, your recommendations from the past week have shown the following differences compared to your liked songs:\n ' + instrumentInfo + 'Like the recommendations? Go review them positively in the Profile page! Hate them? Go dislike them! All feedback you give makes the algorithm more accurate and tailored to you!';
     return await createNotification(subject, content, userId)
 
 }
 
 
-module.exports = {createNotification, dailyNotification}
+module.exports = {createNotification, weeklyNotification}
