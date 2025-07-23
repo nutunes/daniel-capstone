@@ -7,6 +7,9 @@ const loginRoutes = require('./routes/loginRoutes')
 const spotifyRoutes = require('./routes/spotifyRoutes')
 const notificationRoutes = require('./routes/notificationRoutes')
 const session = require('express-session')
+const cron = require('node-cron')
+const { PrismaClient } = require('@prisma/client')
+const prisma = new PrismaClient();
 const { createNotification, weeklyNotification } = require('./utils/notificationUtils')
 
 allowedOrigins = [
@@ -51,6 +54,20 @@ app.use('/notifications', notificationRoutes)
 
 app.get('/', (req, res)=>{
     res.send("welcome to finetune");
+})
+
+
+// Schedule the weekly notification to be sent via a cron job to all users every Monday at 8am
+cron.schedule('0 8 * * 1', async()=>{
+    const users = await prisma.user.findMany();
+    for (let user of users){
+        try {
+            await weeklyNotification(user.id);
+            console.log('notif sent');
+        } catch(error){
+            console.error('error sending weekly notification')
+        }
+    }
 })
 
 

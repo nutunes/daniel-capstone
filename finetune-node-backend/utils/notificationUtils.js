@@ -7,7 +7,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 
-const instruments = ['cello', 'clarinet', 'flute', 'acoustic guitar', 'electric guitar', 'organ', 'piano', 'saxophone', 'trumpet', 'Vvolin', 'singing voice']
+const instruments = ['cello', 'clarinet', 'flute', 'acoustic guitar', 'electric guitar', 'organ', 'piano', 'saxophone', 'trumpet', 'violin', 'singing voice']
 
 
 const createNotification = async(subject, content, userId) => {
@@ -33,6 +33,9 @@ const getDateMMDDYYYY = () => {
 
 // This function is the weekly update notification that will be sent to users each Monday
 const weeklyNotification = async(userId) => {
+    const today = getDateMMDDYYYY();
+    const subject = 'Weekly Update ' + today;
+
     const user = await prisma.user.findUnique({
         where: {
             id: userId
@@ -45,6 +48,13 @@ const weeklyNotification = async(userId) => {
 
     const likedSongs = user.likedSongs;
     const recentSongIds = user.recentSongIds;
+
+    //If there are no recently recommended songs, don't try and search for them and send a notification telling the user to get recommendations
+    if (recentSongIds.length === 0){
+        const content = "You haven't gotten any song recommendations in the past week! Trust us to do our magic and get some song recs!";
+        return await createNotification(subject, content, userId)
+    }
+
     const recommendedSongs = await prisma.song.findMany({
         where: {
             id: {
@@ -86,12 +96,12 @@ const weeklyNotification = async(userId) => {
     for (let i = 0; i < instruments.length; i++){
         instrumentDiffs[i] = likedInstrumentAvgs[i] - recommendedInstrumentAvgs[i];
         if (instrumentDiffs[i] < 0){
-            instrumentInfo += ` - Less ${instruments[i]} than your liked songs\n`
+            instrumentInfo += ` - Less ${instruments[i]}\n`
         } else if (instrumentDiffs[i] > 0){
-            instrumentInfo += ` - More ${instruments[i]} than your liked songs\n`
+            instrumentInfo += ` - More ${instruments[i]}\n`
         }
         else if (instrumentDiffs[i] === 0){
-            instrumentInfo += ` - The same ${instruments[i]} as your liked songs\n`
+            instrumentInfo += ` - The same ${instruments[i]}\n`
         }
     }
 
@@ -104,8 +114,7 @@ const weeklyNotification = async(userId) => {
     const greatestDiff = instrumentDiffs[greatestDiffIndex]
 
     //Create the notification
-    const today = getDateMMDDYYYY();
-    const subject = 'Weekly Update ' + today;
+
     let content = 'On average, your recommendations from the past week have shown the following differences compared to your liked songs:\n ' + instrumentInfo + 'Like the recommendations? Go review them positively in the Profile page! Hate them? Go dislike them! All feedback you give makes the algorithm more accurate and tailored to you!';
     return await createNotification(subject, content, userId)
 
