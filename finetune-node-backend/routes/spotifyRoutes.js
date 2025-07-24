@@ -38,8 +38,8 @@ router.get('/exists', isAuthenticated, async(req, res)=>{
 //Check if a song has already been looked up
 router.get('/unavailable', isAuthenticated, async(req, res)=>{
     const { spotify_id } = req.query;
-    if (!req.query){
-        return res.status(404).json({error: 'must query for sa spotify id'})
+    if (!spotify_id){
+        return res.status(404).json({error: 'must query for a spotify id'})
     }
     res.json(await checkIfUnavailable(spotify_id));
 })
