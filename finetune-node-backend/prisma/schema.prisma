@@ -23,22 +23,43 @@ model Instrument_Recognition {
 }
 
 model User {
-  id                  String         @id @default(uuid())
-  username            String         @unique
-  createdAt           DateTime       @default(now())
-  updatedAt           DateTime       @updatedAt
+  id                  String          @id @default(uuid())
+  username            String          @unique
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
   hashedPassword      String
   displayName         String?
   spotifyRefreshToken String?
-  updateRegression    Boolean        @default(true)
+  updateRegression    Boolean         @default(true)
   regressionWeights   Float[]
   featureMeans        Float[]
   featureStds         Float[]
-  recommendedSongs    Song[]         @relation("RecommendedSongs")
-  dislikedSongs       Song[]         @relation("DislikedSongs")
-  likedSongs          Song[]         @relation("LikedSongs")
-  notifications       Notification[] @relation("UserNotifications")
+  recommendedSongs    Song[]          @relation("RecommendedSongs")
+  dislikedSongs       Song[]          @relation("DislikedSongs")
+  likedSongs          Song[]          @relation("LikedSongs")
+  notifications       Notification[]  @relation("UserNotifications")
   recentSongIds       String[]
+  sentRequests        FriendRequest[] @relation("SentRequests")
+  receivedRequests    FriendRequest[] @relation("ReceivedRequests")
+}
+
+model FriendRequest {
+  id         String              @id @default(uuid())
+  sender     User                @relation("SentRequests", fields: [senderId], references: [id])
+  senderId   String
+  receiver   User                @relation("ReceivedRequests", fields: [receiverId], references: [id])
+  receiverId String
+  status     FriendRequestStatus @default(PENDING)
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+
+  @@unique([senderId, receiverId]) // Prevent duplicate requests
+}
+
+enum FriendRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
 }
 
 model Song {
