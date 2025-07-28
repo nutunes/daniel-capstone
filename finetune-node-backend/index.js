@@ -6,6 +6,7 @@ const PORT = process.env.PORT || 3000
 const loginRoutes = require('./routes/loginRoutes')
 const spotifyRoutes = require('./routes/spotifyRoutes')
 const notificationRoutes = require('./routes/notificationRoutes')
+const friendRoutes = require('./routes/friendRoutes')
 const session = require('express-session')
 const cron = require('node-cron')
 const { PrismaClient } = require('@prisma/client')
@@ -49,6 +50,7 @@ app.use(session({
 app.use('/login', loginRoutes)
 app.use('/spotify', spotifyRoutes)
 app.use('/notifications', notificationRoutes)
+app.use('/friends', friendRoutes)
 
 
 
