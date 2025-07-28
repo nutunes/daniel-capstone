@@ -4,12 +4,13 @@ const { PrismaClient, FriendRequestStatus } = require('@prisma/client')
 const prisma = new PrismaClient()
 const bcrypt = require('bcrypt')
 const {isAuthenticated} = require('../middleware/auth')
+const { createNotification } = require('../utils/notificationUtils')
 
 
 
 
 //Create a friend request
-router.post('/create', isAuthenticated, async(requestAnimationFrame, res)=>{
+router.post('/send_request', isAuthenticated, async(req, res)=>{
     try {
         const userId = req.session.userId;
         const { friendId } = req.body;
@@ -34,9 +35,22 @@ router.post('/create', isAuthenticated, async(requestAnimationFrame, res)=>{
                 receiver: {
                     connect: {id: friendId}
                 },
-                status: FriendRequestStatus.PENDING
+                status: FriendRequestStatus.PENDING,
             }
         })
+        //Once the request is created, send a notification to the reciever that they have a friend request
+        const sender = await prisma.user.findUnique({
+            where: {
+                id: userId,
+            },
+            select: {
+                username: true,
+            }
+        })
+        const subject = 'Friend Request';
+        const content = `You have an incoming friend request from ${sender.username}`;
+        await createNotification(subject, content, friendId);
+
         res.json({request})
 
     } catch(error){
@@ -45,7 +59,7 @@ router.post('/create', isAuthenticated, async(requestAnimationFrame, res)=>{
 })
 
 
-//Respond to  a friend request
+//Respond to a friend request
 router.post('/request_response', isAuthenticated, async(req, res)=>{
     try {
         const { requestId, accept } = req.body;
@@ -116,6 +130,9 @@ router.get('/received_requests', isAuthenticated, async(req, res)=>{
             where: {
                 status: FriendRequestStatus.PENDING,
                 receiverId: userId,
+            },
+            include: {
+                sender: true,
             }
         })
 
