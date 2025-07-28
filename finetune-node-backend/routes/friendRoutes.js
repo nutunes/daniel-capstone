@@ -4,7 +4,6 @@ const { PrismaClient, FriendRequestStatus } = require('@prisma/client')
 const prisma = new PrismaClient()
 const bcrypt = require('bcrypt')
 const {isAuthenticated} = require('../middleware/auth')
-const { join } = require('@prisma/client/runtime/library')
 
 
 
@@ -121,6 +120,59 @@ router.get('/received_requests', isAuthenticated, async(req, res)=>{
         })
 
         res.json(userReceivedRequests);
+    } catch(error){
+        res.status(500).json({error: 'server error'})
+    }
+})
+
+
+//Unadd a friend
+router.patch('/remove_friend', isAuthenticated, async(req, res)=>{
+    try {
+        const userId = req.session.userId;
+
+        const { friendId } = req.body;
+        if (!friendId){
+            return res.status(400).json({error: 'must specify a friend id to remove'})
+        }
+        
+        const friend = await prisma.user.findUnique({
+            where: {
+                id: friendId
+            }
+        });
+        if (!friend){
+            return res.status(400).json({error: 'friend does not exist'})
+        }
+
+        const request = await prisma.friendRequest.findFirst({
+            where: {
+                status: FriendRequestStatus.ACCEPTED,
+                OR: [
+                    {
+                        AND: [
+                            {senderId: userId},
+                            {receiverId: friendId}
+                        ]
+                    },
+                    {
+                        AND: [
+                            {senderId: friendId},
+                            {receiverId: userId}
+                        ]
+                    }
+                ]
+            }
+        });
+        if (!request){
+            return res.status(400).json({error: 'no friendship exists between specified users'})
+        }
+
+        const deletedRequest = await prisma.friendRequest.delete({
+            where: {id: request.id}
+        })
+
+        res.json(deletedRequest)
     } catch(error){
         res.status(500).json({error: 'server error'})
     }
