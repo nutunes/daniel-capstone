@@ -4,6 +4,7 @@ const { PrismaClient, FriendRequestStatus } = require('@prisma/client')
 const prisma = new PrismaClient()
 const bcrypt = require('bcrypt')
 const {isAuthenticated} = require('../middleware/auth')
+const { join } = require('@prisma/client/runtime/library')
 
 
 
@@ -77,10 +78,11 @@ router.post('/request_response', isAuthenticated, async(req, res)=>{
 })
 
 
-//Retrieve a user's friends
+//Retrieve a user's friends. This is done by querying the friend requests for accepted requests with the user as either sender or receiver
 router.get('/all_friends', isAuthenticated, async(req, res)=>{
     try {
         const userId = req.session.userId;
+
         const userFriendRequests = await prisma.friendRequest.findMany({
             where: {
                 status: FriendRequestStatus.ACCEPTED,
@@ -94,13 +96,34 @@ router.get('/all_friends', isAuthenticated, async(req, res)=>{
                 receiver: true,
             }
         });
+
         const friends = userFriendRequests.map(freq => {
             freq.senderId === userId ? freq.sender : freq.receiver
         });
+
         res.json(friends)
     } catch(error){
         res.status(500).json({error: 'server error'})
     } 
+})
+
+
+//Retrieve all pending requests for a user to respond to
+router.get('/received_requests', isAuthenticated, async(req, res)=>{
+    try {
+        const userId = req.session.userId;
+
+        const userReceivedRequests = await prisma.friendRequest.findMany({
+            where: {
+                status: FriendRequestStatus.PENDING,
+                receiverId: userId,
+            }
+        })
+
+        res.json(userReceivedRequests);
+    } catch(error){
+        res.status(500).json({error: 'server error'})
+    }
 })
 
 
