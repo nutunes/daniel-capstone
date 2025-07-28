@@ -9,9 +9,10 @@ const Friends = () => {
     return (
         <div className='flex flex-col flex-1 w-full relative'>
             <LoggedInHeader page='Friends'/>
-            <div className='flex-1 flex flex-col justify-center items-center'>
-                <p className='font-fredoka'>Friends Page Placeholder</p>
-                <p className='font-fredoka'>{user}</p>
+            <div className='flex-1 flex flex-row justify-around items-start m-20'>
+                <p className='font-fredoka'>Friends</p>
+                <p className='font-fredoka'>Recommended</p>
+                <p className='font-fredoka'>Requests</p>
             </div>
         </div>
     )
