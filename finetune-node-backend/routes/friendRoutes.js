@@ -9,7 +9,7 @@ const {isAuthenticated} = require('../middleware/auth')
 
 
 //Create a friend request
-router.post('/create', isAuthenticated, async(requestAnimationFrame, res)=>{
+router.post('/send_request', isAuthenticated, async(req, res)=>{
     try {
         const userId = req.session.userId;
         const { friendId } = req.body;
