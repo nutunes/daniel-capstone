@@ -11,7 +11,7 @@ const session = require('express-session')
 const cron = require('node-cron')
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient();
-const { createNotification, weeklyNotification } = require('./utils/notificationUtils')
+const { weeklyNotification } = require('./utils/notificationUtils')
 
 allowedOrigins = [
     'http://127.0.0.1:5173',

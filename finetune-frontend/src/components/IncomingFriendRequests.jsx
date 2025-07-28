@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import IncomingRequestElement from './IncomingRequestElement';
 
 
 const IncomingFriendRequests = () => {
@@ -24,13 +25,18 @@ const IncomingFriendRequests = () => {
         fetchRequests();
     }, [])
 
+
     return (
         <div className='flex flex-col items-center flex-1'>
-            <p className='font-fredoka text-3xl'>Incoming Friend Requests</p>
-            <div className='flex flex-col m-10 items-center'>
+            <p className='font-fredoka text-3xl text-center'>Incoming Friend Requests</p>
+            <div className='flex flex-col m-10 items-center w-full'>
                 {requests === null && <p className='font-fredoka'>Loading requests...</p>}
                 {requests?.length === 0 && <p className='font-fredoka'>You have no incoming friend requests</p>}
-                {requests?.map(request=>request.receiverId)}
+                {requests?.map(request=>{
+                    return(
+                        <IncomingRequestElement sender={request.sender} key={request.id}/>
+                    )
+                })}
             </div>
         </div>
     )
