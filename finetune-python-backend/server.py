@@ -135,7 +135,6 @@ async def update_instrument_averages(instrument_values):
 # This function calculates the l2, or Euclidean distance, between two vectors. A smaller distance correlates to similar vectors
 # It takes a friend which is a user, gets its 
 def l2_distance(friend_weights, user_weights):
-    print(f"friend_weights: {friend_weights}\n user_weights: {user_weights}")
     if len(friend_weights) != len(user_weights):
         raise Exception('cannot computer l2 distance between two vectors of different length')
     np_friend_weights = np.array(friend_weights)
@@ -309,10 +308,19 @@ async def recommend_friends(user_id: str):
         
         user_weights = user.regressionWeights
 
-        # Get max 1000 users from the db and sort them by music taste according to the user
+        # Get max 1000 users from the db and sort them by music taste according to the user. Exclude users with existing
+        # friend requests between them
         thousand_users_query = f'''
-            Select * from "User"
+            Select * from "User" u
             WHERE id != '{user_id}'
+                AND NOT EXISTS (
+                    SELECT 1 FROM "FriendRequest" fr
+                    WHERE fr."receiverId" = u.id AND fr."senderId" = '{user_id}'
+                )
+                AND NOT EXISTS(
+                    SELECT 1 FROM "FriendRequest" fr
+                    WHERE fr."senderId" = u.id AND fr."receiverId" = '{user_id}'
+                )
             ORDER BY RANDOM()
             LIMIT {1000}
         '''
@@ -326,7 +334,8 @@ async def recommend_friends(user_id: str):
             return l2_distance(user_weights=user_weights, friend_weights=friend['regressionWeights'])
         
         sorted_users = sorted(thousand_users_with_algorithm, key=dist_function)
-        return sorted_users[:5]
+        # Get first 10 suggested users
+        return sorted_users[:10]
 
     except Exception as e:
         print(f"failed to run recommend friends route {e}")
