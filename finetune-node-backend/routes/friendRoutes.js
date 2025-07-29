@@ -147,23 +147,9 @@ router.get('/recommended_friends', isAuthenticated, async(req, res)=>{
     try{
         const userId = req.session.userId;
         //Placeholder - just gives all users
-        const users = await prisma.user.findMany({
-            where: {
-                id: {
-                    not: userId,
-                },
-                receivedRequests: {
-                    none: {
-                        senderId: userId,
-                    },
-                },
-                sentRequests: {
-                    none: {
-                        receiverId: userId,
-                    }
-                }
-            }
-        })
+        const response = await fetch(`http://127.0.0.1:8000/recommend_friends?user_id=${userId}`)
+        const users = await response.json()
+
         res.json(users)
     } catch(error){
         res.status(500).json({error: 'server error'})
