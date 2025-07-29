@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import IncomingRequestElement from './IncomingRequestElement';
 
 
-const IncomingFriendRequests = () => {
+const IncomingFriendRequests = ({friendPageRefresh, setFriendPageRefresh}) => {
     const [requests, setRequests] = useState(null);
 
 
@@ -23,7 +23,7 @@ const IncomingFriendRequests = () => {
 
     useEffect(()=>{
         fetchRequests();
-    }, [])
+    }, [friendPageRefresh])
 
 
     return (
@@ -34,7 +34,7 @@ const IncomingFriendRequests = () => {
                 {requests?.length === 0 && <p className='font-fredoka'>You have no incoming friend requests</p>}
                 {requests?.map(request=>{
                     return(
-                        <IncomingRequestElement request={request} updated={fetchRequests} key={request.id}/>
+                        <IncomingRequestElement request={request} updated={()=>setFriendPageRefresh(prev=>!prev)} key={request.id}/>
                     )
                 })}
             </div>

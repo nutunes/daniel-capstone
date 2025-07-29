@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import RecommendedUserElement from './RecommendedUserElement';
 
 
-const RecommendedFriends = () => {
+const RecommendedFriends = ({friendPageRefresh, setFriendPageRefresh}) => {
     const [recommendedUsers, setRecommendedUsers] = useState(null);
 
     const fetchRecommendedUsers = async() => {
@@ -22,7 +22,7 @@ const RecommendedFriends = () => {
 
     useEffect(()=>{
         fetchRecommendedUsers();
-    }, [])
+    }, [friendPageRefresh])
 
 
 
@@ -34,7 +34,7 @@ const RecommendedFriends = () => {
                 {recommendedUsers?.length === 0 && <p className='font-fredoka'>You have added no friends</p>}
                 {recommendedUsers?.map(user=>{
                     return(
-                        <RecommendedUserElement user={user} updated={fetchRecommendedUsers} key={user.id} />
+                        <RecommendedUserElement user={user} updated={()=>setFriendPageRefresh(prev=>!prev)} key={user.id} />
                     )
                 })}
             </div>

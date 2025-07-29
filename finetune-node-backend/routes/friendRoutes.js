@@ -112,9 +112,8 @@ router.get('/all_friends', isAuthenticated, async(req, res)=>{
         });
 
         const friends = userFriendRequests.map(freq => {
-            freq.senderId === userId ? freq.sender : freq.receiver
+            return freq.senderId === userId ? freq.receiver : freq.sender
         });
-
         res.json(friends)
     } catch(error){
         res.status(500).json({error: 'server error'})
