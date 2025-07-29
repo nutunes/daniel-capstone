@@ -47,6 +47,7 @@ router.post('/send_request', isAuthenticated, async(req, res)=>{
                 username: true,
             }
         })
+
         const subject = 'Friend Request';
         const content = `You have an incoming friend request from ${sender.username}`;
         await createNotification(subject, content, friendId);
@@ -137,6 +138,34 @@ router.get('/received_requests', isAuthenticated, async(req, res)=>{
         })
 
         res.json(userReceivedRequests);
+    } catch(error){
+        res.status(500).json({error: 'server error'})
+    }
+})
+
+
+router.get('/recommended_friends', isAuthenticated, async(req, res)=>{
+    try{
+        const userId = req.session.userId;
+        //Placeholder - just gives all users
+        const users = await prisma.user.findMany({
+            where: {
+                id: {
+                    not: userId,
+                },
+                receivedRequests: {
+                    none: {
+                        senderId: userId,
+                    },
+                },
+                sentRequests: {
+                    none: {
+                        receiverId: userId,
+                    }
+                }
+            }
+        })
+        res.json(users)
     } catch(error){
         res.status(500).json({error: 'server error'})
     }
