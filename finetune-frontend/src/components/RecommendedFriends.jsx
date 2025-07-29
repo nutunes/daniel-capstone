@@ -24,6 +24,10 @@ const RecommendedFriends = ({friendPageRefresh, setFriendPageRefresh}) => {
         fetchRecommendedUsers();
     }, [friendPageRefresh])
 
+    useEffect(()=>{
+        console.log(recommendedUsers)
+    }, [recommendedUsers])
+
 
 
     return (
