@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
+import UsersFriendElement from './UsersFriendElement';
+import { User } from 'lucide-react';
 
 
-const UsersFriends = () => {
+const UsersFriends = ({friendPageRefresh, setFriendPageRefresh}) => {
     const [friends, setFriends] = useState(null);
 
 
@@ -20,16 +22,22 @@ const UsersFriends = () => {
         }
     }
 
+
     useEffect(()=>{
         fetchFriends();
-    }, [])
+    }, [friendPageRefresh])
 
     return (
         <div className='flex flex-col items-center flex-1'>
             <p className='font-fredoka text-3xl'>Your Friends</p>
-            <div className='flex flex-col m-10 items-center'>
+            <div className='flex flex-col m-10 items-center w-full gap-3'>
                 {friends === null && <p className='font-fredoka'>Loading friends...</p>}
                 {friends?.length === 0 && <p className='font-fredoka'>You have added no friends</p>}
+                {friends?.map(friend=>{
+                    return(
+                        <UsersFriendElement friend={friend} key={friend.id}/>
+                    )
+                })}
             </div>
         </div>
     )
