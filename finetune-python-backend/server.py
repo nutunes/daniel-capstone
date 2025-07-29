@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import numpy as np
 from itertools import chain
+from functools import partial
 
 from regression.logistic_regression import run_user_regression, test_song
 
@@ -129,6 +130,18 @@ async def update_instrument_averages(instrument_values):
         )
     except Exception as e:
         print(f"Failed to update instrument averages {e}")
+
+
+# This function calculates the l2, or Euclidean distance, between two vectors. A smaller distance correlates to similar vectors
+# It takes a friend which is a user, gets its 
+def l2_distance(friend_weights, user_weights):
+    print(f"friend_weights: {friend_weights}\n user_weights: {user_weights}")
+    if len(friend_weights) != len(user_weights):
+        raise Exception('cannot computer l2 distance between two vectors of different length')
+    np_friend_weights = np.array(friend_weights)
+    np_user_weights = np.array(user_weights)
+    diff_vec = np_friend_weights - np_user_weights
+    return np.linalg.norm(diff_vec)
 
 
 # Routes
@@ -283,6 +296,42 @@ async def recommend_playlist(user_id: str):
         print(f"failed to run recommended song route {e}")
         return None
     
+
+
+@app.get("/recommend_friends")
+async def recommend_friends(user_id: str):
+    try:
+        user = await prisma.user.find_unique(
+            where={"id": user_id}
+        )
+        if not user:
+            raise Exception('User does not exist')
+        
+        user_weights = user.regressionWeights
+
+        # Get max 1000 users from the db and sort them by music taste according to the user
+        thousand_users_query = f'''
+            Select * from "User"
+            WHERE id != '{user_id}'
+            ORDER BY RANDOM()
+            LIMIT {1000}
+        '''
+        thousand_users = await prisma.query_raw(thousand_users_query)
+        if not thousand_users:
+            raise Exception('Failed to get users to sort')
+
+        thousand_users_with_algorithm = [user for user in thousand_users if user['regressionWeights'] is not None]
+        # Partial function of l2_distance fixing user weights, this will be used in sorting the friends array
+        def dist_function(friend):
+            return l2_distance(user_weights=user_weights, friend_weights=friend['regressionWeights'])
+        
+        sorted_users = sorted(thousand_users_with_algorithm, key=dist_function)
+        return sorted_users[:5]
+
+    except Exception as e:
+        print(f"failed to run recommend friends route {e}")
+        return None
+
 
 @app.get("/add_instruments_to_song")
 async def add_instruments_to_song(song_id: str):
