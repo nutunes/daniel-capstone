@@ -375,10 +375,13 @@ async def add_instruments_to_song(song_id: str):
 
 
 
-
+# This route performs dimensionality reduction through MDS on the given matrix
 @app.post('/mds')
-async def mds(items: List[dict]):
-    names = []
+async def mds(items: List[List[float]]):
+    np_matrix = np.array(items)
+    mds = MDS(n_components=2)
+    reduced = mds.fit_transform(np_matrix)
+    return reduced
 
 
 
