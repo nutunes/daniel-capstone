@@ -379,9 +379,8 @@ async def add_instruments_to_song(song_id: str):
 @app.post('/mds')
 async def mds(items: List[List[float]]):
     np_matrix = np.array(items)
-    mds = MDS(n_components=2)
+    mds = MDS(n_components=3)
     reduced = mds.fit_transform(np_matrix)
-    print(reduced)
     return reduced.tolist()
 
 

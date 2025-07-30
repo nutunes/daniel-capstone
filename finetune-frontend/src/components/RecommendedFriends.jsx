@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react'
 import RecommendedUserElement from './RecommendedUserElement';
-import { useAuth } from './AuthProvider';
+import GraphComponent from './GraphComponent';
+
 
 
 const RecommendedFriends = ({friendPageRefresh, setFriendPageRefresh}) => {
     const [recommendedUsers, setRecommendedUsers] = useState(null);
     const [graphDisplay, setGraphDisplay] = useState(null);
     const [userWeights, setUserWeights] = useState(null);
-    const { user } = useAuth();
+
 
     const fetchRecommendedUsers = async() => {
         try {
@@ -45,10 +46,11 @@ const RecommendedFriends = ({friendPageRefresh, setFriendPageRefresh}) => {
         try {
             // Weight matrix is an array of regression weight arrays that will be sent to get dimensions reduced
             const weightMatrix = [userWeights]
+            const users = ['you']
             for (let user of recommendedUsers){
                 weightMatrix.push(user.regressionWeights)
+                users.push(user.username)
             }
-            console.log(weightMatrix);
             const response = await fetch(`http://127.0.0.1:8000/mds`, {
                 method: "POST",
                 headers: {
@@ -56,8 +58,12 @@ const RecommendedFriends = ({friendPageRefresh, setFriendPageRefresh}) => {
                 },
                 body: JSON.stringify(weightMatrix),
             });
-            const resJSON = await response.json();
-            setGraphDisplay(resJSON);
+            const reducedWeights = await response.json();
+            const display = {
+                'labels': users,
+                'points': reducedWeights
+            }
+            setGraphDisplay(display);
         } catch(error){
             console.error('failed to get reduced dimension coordinates ' + error)
         }
@@ -80,12 +86,14 @@ const RecommendedFriends = ({friendPageRefresh, setFriendPageRefresh}) => {
 
 
 
+
     return (
         <div className='flex flex-col items-center flex-1'>
             <p className='font-fredoka text-3xl'>Recommended Users</p>
-            <div className='flex flex-col m-10 items-center w-full gap-3'>
+            <div className='flex flex-col m-10 items-center w-full gap-3 justify-center'>
                 {recommendedUsers === null && <p className='font-fredoka'>Loading friends...</p>}
                 {recommendedUsers?.length === 0 && <p className='font-fredoka'>You have added no friends</p>}
+                {graphDisplay !== null && <GraphComponent displayInfo={graphDisplay}/>}
                 {recommendedUsers?.map(user=>{
                     return(
                         <RecommendedUserElement user={user} updated={()=>setFriendPageRefresh(prev=>!prev)} key={user.id} />
