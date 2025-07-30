@@ -381,7 +381,8 @@ async def mds(items: List[List[float]]):
     np_matrix = np.array(items)
     mds = MDS(n_components=2)
     reduced = mds.fit_transform(np_matrix)
-    return reduced
+    print(reduced)
+    return reduced.tolist()
 
 
 

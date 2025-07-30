@@ -40,6 +40,29 @@ const RecommendedFriends = ({friendPageRefresh, setFriendPageRefresh}) => {
         }
     }
 
+
+    const updateGraphDisplay = async() => {
+        try {
+            // Weight matrix is an array of regression weight arrays that will be sent to get dimensions reduced
+            const weightMatrix = [userWeights]
+            for (let user of recommendedUsers){
+                weightMatrix.push(user.regressionWeights)
+            }
+            console.log(weightMatrix);
+            const response = await fetch(`http://127.0.0.1:8000/mds`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(weightMatrix),
+            });
+            const resJSON = await response.json();
+            setGraphDisplay(resJSON);
+        } catch(error){
+            console.error('failed to get reduced dimension coordinates ' + error)
+        }
+    }
+
     // refetch recommended users whenever the page triggers a rerender
     useEffect(()=>{
         fetchRecommendedUsers();
@@ -49,6 +72,11 @@ const RecommendedFriends = ({friendPageRefresh, setFriendPageRefresh}) => {
     useEffect(()=>{
         fetchUserAccount();
     }, [])
+
+    // Each time recommended users is updated, fetch the reduced dimension coordinates
+    useEffect(()=>{
+        updateGraphDisplay()
+    }, [recommendedUsers])
 
 
 
