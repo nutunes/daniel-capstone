@@ -103,4 +103,20 @@ router.post('/logout', isAuthenticated, async(req, res)=>{
     })
 })
 
+
+//Get a user's account
+router.get('/account', isAuthenticated, async(req, res)=>{
+    try{
+        const userId = req.session.userId;
+        const user = await prisma.user.findUnique({
+            where: {
+                id: userId,
+            }
+        })
+        res.json(user);
+    } catch(error){
+        res.status(500).json({error: 'server error'})
+    }
+})
+
 module.exports = router;

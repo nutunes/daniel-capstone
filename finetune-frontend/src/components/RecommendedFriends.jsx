@@ -1,9 +1,13 @@
 import { useState, useEffect } from 'react'
 import RecommendedUserElement from './RecommendedUserElement';
+import { useAuth } from './AuthProvider';
 
 
 const RecommendedFriends = ({friendPageRefresh, setFriendPageRefresh}) => {
     const [recommendedUsers, setRecommendedUsers] = useState(null);
+    const [graphDisplay, setGraphDisplay] = useState(null);
+    const [userWeights, setUserWeights] = useState(null);
+    const { user } = useAuth();
 
     const fetchRecommendedUsers = async() => {
         try {
@@ -20,9 +24,31 @@ const RecommendedFriends = ({friendPageRefresh, setFriendPageRefresh}) => {
         }
     }
 
+
+    const fetchUserAccount = async() => {
+        try{
+            const response = await fetch(`http://127.0.0.1:3000/login/account`, {
+                credentials: 'include',
+            });
+            if (!response || !response.ok){
+                throw new Error('failed to fetch')
+            }
+            const profile = await response.json()
+            setUserWeights(profile.regressionWeights)
+        } catch(error){
+            console.error('failed to get account ' + error)
+        }
+    }
+
+    // refetch recommended users whenever the page triggers a rerender
     useEffect(()=>{
         fetchRecommendedUsers();
     }, [friendPageRefresh])
+
+    // only need to get the user's weights once, on mount
+    useEffect(()=>{
+        fetchUserAccount();
+    }, [])
 
 
 

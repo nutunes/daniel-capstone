@@ -4,7 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import numpy as np
 from itertools import chain
-from functools import partial
+from sklearn.manifold import MDS
+from typing import List
 
 from regression.logistic_regression import run_user_regression, test_song
 
@@ -371,6 +372,16 @@ async def add_instruments_to_song(song_id: str):
     except Exception as e:
         print(f'failed to add instruments to song: {e}')
 
+
+
+
+# This route performs dimensionality reduction through MDS on the given matrix
+@app.post('/mds')
+async def mds(items: List[List[float]]):
+    np_matrix = np.array(items)
+    mds = MDS(n_components=2)
+    reduced = mds.fit_transform(np_matrix)
+    return reduced
 
 
 
