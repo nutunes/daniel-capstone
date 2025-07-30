@@ -52,13 +52,13 @@ const GraphComponent = ({displayInfo}) => {
                         l: 0,
                         r: 0,
                         b: 0,
-                        t: 30
+                        t:0,
                     },
                     hovermode: 'closest',
                 }}
                 style={{
-                    width: '100%',
-                    height: '100%',
+                    width: '350px',
+                    height: '350px',
                 }}
             />
 
