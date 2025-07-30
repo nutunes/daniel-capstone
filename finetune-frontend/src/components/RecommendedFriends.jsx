@@ -93,7 +93,12 @@ const RecommendedFriends = ({friendPageRefresh, setFriendPageRefresh}) => {
             <div className='flex flex-col m-10 items-center w-full gap-3 justify-center'>
                 {recommendedUsers === null && <p className='font-fredoka'>Loading friends...</p>}
                 {recommendedUsers?.length === 0 && <p className='font-fredoka'>You have added no friends</p>}
-                {graphDisplay !== null && <GraphComponent displayInfo={graphDisplay}/>}
+                {graphDisplay !== null && <div className='flex flex-col w-full flex-1 justify-center items-center'>
+                    <p className='font-fredoka text-sm p-2 text-muted-foreground'>
+                        Recommended friends are calculated by giving you users whose algorithm is the closest to yours, hence similar music taste. Because your algorithm is represented by a 14-dimensional vector, below is an interactive graph reduced to 3 dimensions while preserving relative distances that allows you to see how similar your music tastes are!
+                    </p>
+                    <GraphComponent displayInfo={graphDisplay}/>
+                </div>}
                 {recommendedUsers?.map(user=>{
                     return(
                         <RecommendedUserElement user={user} updated={()=>setFriendPageRefresh(prev=>!prev)} key={user.id} />
