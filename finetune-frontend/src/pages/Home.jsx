@@ -6,6 +6,7 @@ import LoggedInHeader from "@/components/LoggedInHeader";
 import { Button } from "@/components/ui/button";
 import TestSong from "@/components/TestSong";
 import RecommendSong from "@/components/RecommendSong";
+import RecommendPlaylist from '@/components/RecommendPlaylist';
 
 
 const Home = () => {
@@ -42,10 +43,7 @@ const Home = () => {
 
                     <RecommendSong />
                     {userAccount?.spotifyRefreshToken !== null && 
-                        <Button variant='outline' size='lg'
-                            className='text-darkgreen !border-darkgreen hover:text-background hover:!bg-darkgreen 
-                            focus:scale-105 active:scale-105 p-15 text-4xl border-5 w-full'
-                            >Get New Playlist</Button>}
+                        <RecommendPlaylist userAccount={userAccount}/>}
                 </div>
             </div>
         </div>
