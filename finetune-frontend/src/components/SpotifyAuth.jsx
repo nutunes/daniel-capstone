@@ -22,7 +22,7 @@ const base64encode = (input) => {
 const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID
 const redirectUri = 'http://127.0.0.1:5173/loaduserspotify'
 
-const scope = 'user-top-read'
+const scope = 'user-top-read playlist-modify-public playlist-modify-private'
 const authUrl = new URL("https://accounts.spotify.com/authorize")
 
 const SpotifyAuth = () => {
