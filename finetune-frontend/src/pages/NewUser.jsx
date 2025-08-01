@@ -22,7 +22,7 @@ const NewUser = () => {
             if (liked.length > 0) {
                 navigate('/')
             } else{
-                toast('You must like a song or link you Spotify before you can continue')
+                toast('You must like a song or link your Spotify before you can continue')
             }
         } catch(error){
             console.error('failed to get liked songs' + error)
