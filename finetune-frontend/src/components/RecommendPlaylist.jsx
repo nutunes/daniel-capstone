@@ -10,11 +10,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import PlaylistCarousel from "./PlaylistCarousel";
 
 
 
 import { useAuth } from "./AuthProvider";
-import { getClientCredentialsToken } from "@/util/spotifyUtils";
 
 const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID
 const clientSecret = import.meta.env.VITE_SPOTIFY_CLIENT_SECRET
@@ -23,6 +23,7 @@ const clientSecret = import.meta.env.VITE_SPOTIFY_CLIENT_SECRET
 const RecommendPlaylist = ({userAccount}) => {
     const [recommendedSongs, setRecommendedSongs] = useState(null);
     const [token, setToken] = useState(null)
+
     const { user } = useAuth();
 
     const handleGetPlaylist = async() => {
@@ -108,7 +109,6 @@ const RecommendPlaylist = ({userAccount}) => {
                 }
             })
             const spotifyProfile = await userSpotifyProfileResponse.json();
-            console.log(spotifyProfile.id);
             const createPlaylistResponse = await fetch(`https://api.spotify.com/v1/users/${spotifyProfile.id}/playlists`, {
                 method: 'POST',
                 headers: {
@@ -161,7 +161,7 @@ const RecommendPlaylist = ({userAccount}) => {
                         Get a New Playlist!
                     </DialogTitle>
                     <DialogDescription className='font-fredoka text-center'>
-                        Let FineTune create you a Spotify playlist of songs that you will like
+                        Let FineTune create you a Spotify playlist of songs that you will like. This playlist is automatically on your Spotify profile!
                     </DialogDescription>
                 </DialogHeader>
                 <div className='flex flex-row gap-2 justify-center items-center flex-1'>
@@ -169,6 +169,7 @@ const RecommendPlaylist = ({userAccount}) => {
                     className='text-orange !border-orange hover:text-background hover:!bg-orange
                     focus:scale-105 active:scale-105 p-3 border-2 flex-1'
                     onClick={handleGetPlaylist}>Give me a Playlist!</Button>}
+                    {recommendedSongs && <PlaylistCarousel songs={recommendedSongs} />}
                 </div>
             </DialogContent>
         </Dialog>
