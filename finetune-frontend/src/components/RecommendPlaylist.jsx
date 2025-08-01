@@ -22,6 +22,7 @@ const clientSecret = import.meta.env.VITE_SPOTIFY_CLIENT_SECRET
 
 const RecommendPlaylist = ({userAccount}) => {
     const [recommendedSongs, setRecommendedSongs] = useState(null);
+    const [token, setToken] = useState(null)
     const { user } = useAuth();
 
     const handleGetPlaylist = async() => {
@@ -43,6 +44,106 @@ const RecommendPlaylist = ({userAccount}) => {
             console.error('failed to get playlist ' + error)
         }
     }
+
+    const patchRefreshToken = async(refreshToken) => {
+        try {
+            const response = await fetch(`http://127.0.0.1:3000/spotify/refresh_token`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    refresh_token: refreshToken
+                }),
+                credentials: 'include',
+            })
+            if (!response || !response.ok){
+                throw new Error('failed to update refresh token')
+            }
+        } catch(error){
+            console.error(error);
+        }
+    }
+
+    const getRefreshToken = async() => {
+        try{
+            const refreshToken = userAccount.spotifyRefreshToken;
+            const url = "https://accounts.spotify.com/api/token";
+
+            const payload = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    grant_type: 'refresh_token',
+                    refresh_token: refreshToken,
+                    client_id: clientId,
+                }),
+            }
+            const response = await fetch(url, payload);
+            if (!response || !response.ok){
+                throw new Error('failed to refresh token');
+            }
+            const responseJSON = await response.json();
+            setToken(responseJSON.access_token)
+            if (responseJSON.refresh_token){
+                await patchRefreshToken(responseJSON.refresh_token);
+            }
+            return responseJSON.access_token
+        } catch(error){
+            console.error('failed to get refresh token ' + error);
+        }
+    }
+
+    const handleCreatePlaylist = async() => {
+        try{
+            let validToken = token;
+            if (!validToken){
+                validToken = await getRefreshToken();
+            }
+            const userSpotifyProfileResponse = await fetch(`https://api.spotify.com/v1/me`, {
+                headers: {
+                    'Authorization': 'Bearer ' + validToken
+                }
+            })
+            const spotifyProfile = await userSpotifyProfileResponse.json();
+            console.log(spotifyProfile.id);
+            const createPlaylistResponse = await fetch(`https://api.spotify.com/v1/users/${spotifyProfile.id}/playlists`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + validToken,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    "name": "FineTune Recommended Playlist",
+                    "description": "30 songs FineTune knows you will love"  
+                })
+            });
+            const createdPlaylist = await createPlaylistResponse.json();
+            const trackUris = recommendedSongs.map(song => `spotify:track:${song.spotify_id}`)
+            const updatedPlaylistResponse = await fetch(`https://api.spotify.com/v1/playlists/${createdPlaylist.id}/tracks`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + validToken,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    "uris": trackUris,
+                })
+            })
+
+        } catch(error){
+            console.error('failed to create playlist');
+        }
+    }
+
+    useEffect(()=>{
+        if (userAccount !== null && recommendedSongs !== null){
+            handleCreatePlaylist();
+        }
+    }, [recommendedSongs])
+
 
     return (
         <Dialog onOpenChange={()=>{
